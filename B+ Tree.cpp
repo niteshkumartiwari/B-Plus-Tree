@@ -36,13 +36,13 @@ class BPTree {
 		::For Root Node :=
 			The root node has, at least two tree pointers
 		::For Internal Nodes:=
-			1. ceil(minInternalNodes/2)     <=  #of children <= minInternalNodes
-			2. ceil(minInternalNodes/2)-1  <=  #of keys     <= minInternalNodes -1
+			1. ceil(maxInternalNodes/2)     <=  #of children <= maxInternalNodes
+			2. ceil(maxInternalNodes/2)-1  <=  #of keys     <= maxInternalNodes -1
 		::For Leaf Nodes :=
-			1. ceil(minLeafNodes/2)-1   <=  #of keys     <= minLeafNodes -1
+			1. ceil(maxLeafNodes/2)-1   <=  #of keys     <= maxLeafNodes -1
 	*/
 private:
-	int minInternalNodes, minLeafNodes;
+	int maxInternalNodes, maxLeafNodes;
 	Node* root; //Pointer to the B+ Tree root
 
 public:
@@ -56,10 +56,10 @@ public:
 
 BPTree::BPTree() {
 	/*
-		By Default it will take the minInternalNodes as 4. And
-		minLeafNodes as 3.
+		By Default it will take the maxInternalNodes as 4. And
+		maxLeafNodes as 3.
 
-		::REASON FOR TWO SEPERATE VARIABLES minInternalNodes & minLeafNodes !!
+		::REASON FOR TWO SEPERATE VARIABLES maxInternalNodes & maxLeafNodes !!
 		We are keeping the two seperate Orders
 		because Internal Nodes can hold more values in one disc block
 		as the size of the Tree pointer is small but the size of the
@@ -68,14 +68,14 @@ BPTree::BPTree() {
 		reson to reperate out these to variables.
 
 	*/
-	this->minInternalNodes = 4;
-	this->minLeafNodes = 3;
+	this->maxInternalNodes = 4;
+	this->maxLeafNodes = 3;
 	this->root = NULL;
 }
 
 BPTree::BPTree(int degreeInternal, int degreeLeaf) {
-	this->minInternalNodes = degreeInternal;
-	this->minLeafNodes = degreeLeaf;
+	this->maxInternalNodes = degreeInternal;
+	this->maxLeafNodes = degreeLeaf;
 	this->root = NULL;
 }
 
@@ -114,7 +114,7 @@ void BPTree::search(int key) {
 
 		/*
 			We can fetch the data from the disc in main memory using data-ptr
-			using cursor->dataPtr
+			using cursor->dataPtr[idx]
 		*/
 		cout << "Hurray!! Key FOUND" << endl;
 	}
@@ -145,17 +145,20 @@ void BPTree::insert(int key, FILE* filePtr) {
 
 		//searching for the possible position for the given key by doing the same procedure we did in search
 		while (cursor->isLeaf == false) {
-			for (int i = 0; i < cursor->keys.size(); i++) {
-				if (cursor->keys[i] > key) {
-					cursor = cursor->ptr2Tree[i];
-					break;
-				}
+			int idx = std::upper_bound(cursor->keys.begin(), cursor->keys.end(), key) - cursor->keys.begin();
 
-				if (i == cursor->keys.size() - 1) {
-					cursor = cursor->ptr2Tree[i+1];
-					break;
-				}
-			}
+			if (idx == cursor->keys.size())
+				cursor = cursor->ptr2Tree[idx + 1];
+			else
+				cursor = cursor->ptr2Tree[idx];
+		}
+
+		//now cursor is the leaf node in which we'll insert the new key
+		if (cursor->keys.size() < maxInternalNodes) {
+			/*
+				If current leaf Node is not FULL, find the correct position for the new key!
+			*/
+
 		}
 	}
 
