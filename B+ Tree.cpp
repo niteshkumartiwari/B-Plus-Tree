@@ -33,11 +33,13 @@ Node::Node() {
 
 class BPTree {
 	/*
+		::For Root Node :=
+			The root node has, at least two tree pointers
 		::For Internal Nodes:=
 			1. ceil(minInternalNodes/2)     <=  #of children <= minInternalNodes
-			2. ceil(minInternalNodes/2) -1  <=  #of keys     <= minInternalNodes -1
+			2. ceil(minInternalNodes/2)-1  <=  #of keys     <= minInternalNodes -1
 		::For Leaf Nodes :=
-			1. ceil(minLeafNodes/2) -1  <=  #of keys     <= minLeafNodes -1
+			1. ceil(minLeafNodes/2)-1   <=  #of keys     <= minLeafNodes -1
 	*/
 private:
 	int minInternalNodes, minLeafNodes;
@@ -87,7 +89,33 @@ void BPTree::search(int key) {
 		return;
 	}
 	else {
+		Node* cursor = root;
+		while (cursor->isLeaf == false) {
+			for (int i = 0; i < cursor->keys.size(); i++) {
+				if (key < cursor->keys[i]) {//in left sub-tree
+					cursor = cursor->ptr2Tree[i];
+					break;
+				}
 
+				if (i == cursor->keys.size() - 1) {// in right sub-tree if not found till last node
+					cursor = cursor->ptr2Tree[i + 1];
+					break;
+				}
+			}
+		}
+
+		for (int i = 0; i < cursor->keys.size(); i++) {
+			if (cursor->keys[i] == key) {
+				/*
+					We can fetch the data from the disc in main memory using data-ptr 
+					using cursor->dataPtr
+				*/
+				cout << "Hurray!! Key FOUND" << endl;
+				return;
+			}
+		}
+
+		cout << "HUH!! Key NOT FOUND" << endl;
 	}
 }
 
