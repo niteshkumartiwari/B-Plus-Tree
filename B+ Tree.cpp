@@ -17,7 +17,7 @@ private:
 	Node* ptr2next; //Pointer to connect next node for leaf nodes
 	union ptr {//to make memory efficient Node
 		vector<Node*> ptr2Tree; //Array of pointers to Children sub-trees for intermediate Nodes
-		FILE* dataPtr; // Data-Pointer for the leaf node
+		vector<FILE*> dataPtr; // Data-Pointer for the leaf node
 	};
 
 	friend class BPTree;// to access private members of the Node and hold the encapsulation concept
@@ -50,7 +50,7 @@ public:
 	BPTree(int degreeInternal, int degreeLeaf);
 	Node* getRoot();
 	void search(int key);
-	void insert(int key);
+	void insert(int key, FILE *filePtr);
 	void remove(int key);
 };
 
@@ -91,32 +91,74 @@ void BPTree::search(int key) {
 	else {
 		Node* cursor = root;
 		while (cursor->isLeaf == false) {
+			/*
+				upper_bound returns an iterator pointing to the first element in the range 
+				[first,last) which has a value greater than ‘val’.(Because we are storing the
+				same value in the right node;(STL is doing Binary search at back end)
+			*/
+			int idx = std::upper_bound(cursor->keys.begin(), cursor->keys.end(), key) - cursor->keys.begin();
+			
+			if (idx == cursor->keys.size())
+				cursor = cursor->ptr2Tree[idx + 1];
+			else
+				cursor = cursor->ptr2Tree[idx];
+			
+		}
+		
+		int idx = std::lower_bound(cursor->keys.begin(), cursor->keys.end(), key) - cursor->keys.begin();
+		
+		if (idx == cursor->keys.size() || cursor->keys[i] != key) {
+			cout << "HUH!! Key NOT FOUND" << endl;
+			return;
+		}
+
+		/*
+			We can fetch the data from the disc in main memory using data-ptr
+			using cursor->dataPtr
+		*/
+		cout << "Hurray!! Key FOUND" << endl;
+	}
+}
+
+void BPTree::insert(int key, FILE* filePtr) {
+	/*
+		1. If the node has an empty space, insert the key/reference pair into the node.
+		2. If the node is already full, split it into two nodes, distributing the keys 
+		evenly between the two nodes. If the node is a leaf, take a copy of the minimum 
+		value in the second of these two nodes and repeat this insertion algorithm to 
+		insert it into the parent node. If the node is a non-leaf, exclude the middle 
+		value during the split and repeat this insertion algorithm to insert this excluded 
+		value into the parent node.
+	*/
+
+	if (root == NULL) {
+		root = new Node;
+		root->isLeaf[] = true;
+		root->keys[0] = key;
+		root->dataPtr[0] = filePtr;
+
+		cout << key << ": I AM ROOT!!" << endl;
+		return;
+	}
+	else {
+		Node* cursor = root;
+
+		//searching for the possible position for the given key by doing the same procedure we did in search
+		while (cursor->isLeaf == false) {
 			for (int i = 0; i < cursor->keys.size(); i++) {
-				if (key < cursor->keys[i]) {//in left sub-tree
+				if (cursor->keys[i] > key) {
 					cursor = cursor->ptr2Tree[i];
 					break;
 				}
 
-				if (i == cursor->keys.size() - 1) {// in right sub-tree if not found till last node
-					cursor = cursor->ptr2Tree[i + 1];
+				if (i == cursor->keys.size() - 1) {
+					cursor = cursor->ptr2Tree[i+1];
 					break;
 				}
 			}
 		}
-
-		for (int i = 0; i < cursor->keys.size(); i++) {
-			if (cursor->keys[i] == key) {
-				/*
-					We can fetch the data from the disc in main memory using data-ptr 
-					using cursor->dataPtr
-				*/
-				cout << "Hurray!! Key FOUND" << endl;
-				return;
-			}
-		}
-
-		cout << "HUH!! Key NOT FOUND" << endl;
 	}
+
 }
 
 int main() {
