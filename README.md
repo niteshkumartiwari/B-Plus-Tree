@@ -1,2 +1,2 @@
-# B-Tree
+# B+ Tree
 Implementing B+ tree using C++
