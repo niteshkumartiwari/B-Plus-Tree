@@ -70,12 +70,6 @@ work give an element to the right sibling and if this also doesn't work split it
 We have followed 2nd method which was comparatively easy to implement with relatively less hustle. So, 
 here is the complete algorithm for [reference](http://www.cburch.com/cs/340/reading/btree/index.html?fbclid=IwAR0QFRcpIVL19PdMtZU0-wG18f-rwGS4lNvzpEAsdaZCL7BrNRBuFffiPJ0)
 
-	![B+ Insertion1](/img/insert_1.png)
-
-	![B+ Insertion2](/img/insert_2.png)
-
-	![B+ Insertion3](/img/insert_3.png)
-
 Descend to the leaf node where leaf fits :
 a.	If the node has empty space, insert the key/reference pair into the node and We are DONE!
 b.	If the node is already full, split it into two nodes, distributing the keys evenly. 
@@ -86,4 +80,8 @@ b.	If the node is already full, split it into two nodes, distributing the keys e
 
 
 
+	![insert1](img/insert_1.png)
 
+	![insert2](img/insert_2.png)
+
+	![insert3](img/insert_3.png)
