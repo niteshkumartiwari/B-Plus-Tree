@@ -79,9 +79,8 @@ b.	If the node is already full, split it into two nodes, distributing the keys e
 		the	parent.
 
 
-
 	![insert1](img/insert_1.png)
 
-	![B+ TreeBasics](img/prop_1.png)
+	![insert2](img/insert_2.png)
 
 	![insert3](img/insert_3.png)
