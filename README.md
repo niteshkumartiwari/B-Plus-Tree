@@ -6,8 +6,14 @@ Implementing B+ tree using C++
 - [ ] Structuring the main Function
 - [ ] Adding animations (AddOn)
 
+## Assumptions in our Tree :
 
-##Some UseFul Properties of B+ Tree:
+1.	We are making a right biased tree. By this we mean if maxLimits are even we will split them
+	in such a way that right sibling has one element greater.
+
+
+## Some UseFul Properties of B+ Tree:
+
 1. B+ Tree Unlike B Tree is defined by two order values one for leaf node and another for non-leaf node.
 	Minimum 50% should hold on B+ Tree Node.
 	a.	For Non-Leaf Nodes-
@@ -19,10 +25,28 @@ Implementing B+ tree using C++
 		ii.	ceil(maxLeafLimit)-1<= #of keys <= maxLeafLimit-1	
 
 	![B+ TreeBasics](img/prop_1.png)
+	![B+ TreeBasics](img/prop_2.png)
+	![B+ TreeBasics](img/prop_3.png)
 
 
 
-##Insertion:
+## Search:
+
+1.	If x is non-leaf node, we seek for the first *i* for which **keyValue** which is greater 
+	than or equal-to the key k searched for. After that search continues in the node pointed 
+	by ***iptr2Tree***.
+
+2.	If all the **keyValue** are smaller than k then, we continue to search in the node pointed
+	by ***(maxInternalLimit)ptr2Tree***.
+
+3.	If x is a leaf-node, we search if k is present in the node!
+
+
+	![B+ Search](img/search_1.png)
+
+
+
+## Insertion:
 
 There are two convention being followed for the insertion(according to the google what i found out)
 where, if the current node becomes full then -
