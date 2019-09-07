@@ -78,8 +78,8 @@ b.	If the node is already full, split it into two nodes, distributing the keys e
 	ii.	If the node is non-leaf, exclude the middle value during split and insert the excluded value into 
 		the	parent.
 
-	![B+ TreeBasics](img/insert_1.png)
-	![B+ TreeBasics](img/insert_2.png)
-	![B+ TreeBasics](img/insert_3.png)
+	![B+ Insertion](img/insert_1.png)
+	![B+ Insertion](img/insert_2.png)
+	![B+ Insertion](img/insert_3.png)
 
 
