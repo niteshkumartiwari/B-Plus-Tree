@@ -18,7 +18,7 @@ Implementing B+ tree using C++
 		i.	ceil(maxLeafLimit)<= #of children <= maxLeafLimit
 		ii.	ceil(maxLeafLimit)-1<= #of keys <= maxLeafLimit-1	
 
-	[B+	TreeBasics](img/prop_1.png)
+	![B+ TreeBasics](img/prop_1.png)
 
 
 
