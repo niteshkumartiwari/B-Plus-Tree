@@ -49,13 +49,14 @@ class BPTree {
 		::For Root Node :=
 			The root node has, at least two tree pointers
 		::For Internal Nodes:=
-			1. ceil(maxInternalLimit/2)     <=  #of children <= maxInternalLimit
-			2. ceil(maxInternalLimit/2)-1  <=  #of keys     <= maxInternalLimit -1
+			1. ceil(maxIntChildLimit/2)     <=  #of children <= maxIntChildLimit
+			2. ceil(maxIntChildLimit/2)-1  <=  #of keys     <= maxIntChildLimit -1
 		::For Leaf Nodes :=
-			1. ceil(maxLeafLimit/2)   <=  #of keys     <= maxLeafLimit -1
+			1. ceil(maxLeafNodeLimit/2)   <=  #of keys     <= maxLeafNodeLimit -1
 	*/
 private:
-	int maxInternalLimit, maxLeafLimit;
+	int maxIntChildLimit;//Limiting  #of children for internal Nodes!
+	int maxLeafNodeLimit;// Limiting #of nodes for leaf Nodes!!!
 	Node* root; //Pointer to the B+ Tree root
 	void insertInternal(int x, Node* cursor, Node* child); //Insert x from child in cursor(parent) 
 
@@ -71,10 +72,10 @@ public:
 
 BPTree::BPTree() {
 	/*
-		By Default it will take the maxInternalLimit as 4. And
-		maxLeafLimit as 3.
+		By Default it will take the maxIntChildLimit as 4. And
+		maxLeafNodeLimit as 3.
 
-		::REASON FOR TWO SEPERATE VARIABLES maxInternalLimit & maxLeafLimit !!
+		::REASON FOR TWO SEPERATE VARIABLES maxIntChildLimit & maxLeafNodeLimit !!
 		We are keeping the two seperate Orders
 		because Internal Nodes can hold more values in one disc block
 		as the size of the Tree pointer is small but the size of the
@@ -83,14 +84,15 @@ BPTree::BPTree() {
 		reson to reperate out these to variables.
 
 	*/
-	this->maxInternalLimit = 4;
-	this->maxLeafLimit = 3;
+	this->maxIntChildLimit = 4;
+	this->maxLeafNodeLimit = 3;
 	this->root = NULL;
 }
 
 BPTree::BPTree(int degreeInternal, int degreeLeaf) {
-	this->maxInternalLimit = degreeInternal;
-	this->maxLeafLimit = degreeLeaf;
+
+	this->maxIntChildLimit = degreeInternal;
+	this->maxLeafNodeLimit = degreeLeaf;
 	this->root = NULL;
 }
 
@@ -145,7 +147,7 @@ void BPTree::search(int key) {
 	}
 }
 
-void BPTree::insert(int key, FILE* filePtr) {
+void BPTree::insert(int key, FILE* filePtr) {//in Leaf Node
 	/*
 		1. If the node has an empty space, insert the key/reference pair into the node.
 		2. If the node is already full, split it into two nodes, distributing the keys
@@ -159,8 +161,8 @@ void BPTree::insert(int key, FILE* filePtr) {
 	if (root == NULL) {
 		root = new Node;
 		root->isLeaf = true;
-		root->keys[0] = key;
-		root->ptr2TreeOrData.dataPtr[0] = filePtr;
+		root->keys.push_back(key);
+		root->ptr2TreeOrData.dataPtr.push_back(filePtr);
 
 		cout << key << ": I AM ROOT!!" << endl;
 		return;
@@ -170,30 +172,29 @@ void BPTree::insert(int key, FILE* filePtr) {
 
 		//searching for the possible position for the given key by doing the same procedure we did in search
 		while (cursor->isLeaf == false) {
-			int idx = std::upper_bound(cursor->keys.begin(), cursor->keys.end(), key) - cursor->keys.begin();
-
-			if (idx == cursor->keys.size())
-				cursor = cursor->ptr2TreeOrData.ptr2Tree[idx + 1];
-			else
-				cursor = cursor->ptr2TreeOrData.ptr2Tree[idx];
+			int idx = std::upper_bound(cursor->keys.begin(), cursor->keys.end(), key) - cursor->keys.begin();	
+			cursor = cursor->ptr2TreeOrData.ptr2Tree[idx];
 		}
 
 		//now cursor is the leaf node in which we'll insert the new key
-		if (cursor->keys.size() < maxLeafLimit) {
+		if (cursor->keys.size() < maxLeafNodeLimit) {
 			/*
-				If current leaf Node is not FULL, find the correct position for the new key!
+				If current leaf Node is not FULL, find the correct position for the new key and insert!
 			*/
-			int i = std::lower_bound(cursor->keys.begin(), cursor->keys.end(), key) - cursor->keys.begin();
+			int i = std::upper_bound(cursor->keys.begin(), cursor->keys.end(), key) - cursor->keys.begin();
 			cursor->keys.push_back(key);
 			cursor->ptr2TreeOrData.dataPtr.push_back(filePtr);
+			
+			if (i != cursor->keys.size() - 1) {
+				for (int j = cursor->keys.size() - 1; j > i; j--) {// shifting the position for keys and datapointer
+					cursor->keys[j] = cursor->keys[j - 1];
+					cursor->ptr2TreeOrData.dataPtr[j] = cursor->ptr2TreeOrData.dataPtr[j - 1];
+				}
 
-			for (int j = cursor->keys.size(); j > i; j--) {// shifting the position for keys and datapointer
-				cursor->keys[j] = cursor->keys[j - 1];
-				cursor->ptr2TreeOrData.dataPtr[j] = cursor->ptr2TreeOrData.dataPtr[j - 1];
+				//since earlier step was just to inc. the size of vectors and making space, now we are simplying inserting 
+				cursor->keys[i] = key;
+				cursor->ptr2TreeOrData.dataPtr[i] = filePtr;
 			}
-
-			//cursor->keys[i] = key;
-			//cursor->ptr2TreeOrData.dataPtr[i]=filePtr;
 			cout << "Inserted successfully: " << key << endl;
 		}
 		else {
@@ -204,19 +205,26 @@ void BPTree::insert(int key, FILE* filePtr) {
 			vector<int> virtualNode(cursor->keys);
 			vector<FILE*> virtualDataNode(cursor->ptr2TreeOrData.dataPtr);
 
-			int i = std::lower_bound(cursor->keys.begin(), cursor->keys.end(), key) - cursor->keys.begin();
+			//finding the probable place to insert the key
+			int i = std::upper_bound(cursor->keys.begin(), cursor->keys.end(), key) - cursor->keys.begin();
+			
 			virtualNode.push_back(key);// to create space
 			virtualDataNode.push_back(filePtr);// to create space
-			for (int j = virtualNode.size(); j > i; j--) {// shifting the position for keys and datapointer
-				virtualNode[j] = virtualNode[j - 1];
-				virtualDataNode[j] = virtualDataNode[j - 1];
-			}
 
+			if (i != virtualNode.size() - 1) {
+				for (int j = virtualNode.size() - 1; j > i; j--) {// shifting the position for keys and datapointer
+					virtualNode[j] = virtualNode[j - 1];
+					virtualDataNode[j] = virtualDataNode[j - 1];
+				}
+
+				//inserting
+				virtualNode[i] = key;
+				virtualDataNode[i] = filePtr;
+			}
 			/*
 				BAZINGA! I have the power to create new Leaf :)
 			*/
-			virtualNode.push_back(key);
-			virtualDataNode.push_back(filePtr);
+
 			Node* newLeaf = new Node;
 			newLeaf->isLeaf = true;
 			newLeaf->ptr2parent = cursor->ptr2parent;
@@ -227,15 +235,15 @@ void BPTree::insert(int key, FILE* filePtr) {
 			newLeaf->ptr2next = temp;
 
 			//resizing and copying the keys & dataPtr to OldNode
-			cursor->keys.resize((maxLeafLimit + 1) / 2);
-			cursor->ptr2TreeOrData.dataPtr.resize((maxLeafLimit + 1) / 2);
-			for (int i = 0; i < (maxLeafLimit + 1) / 2; i++) {
+			cursor->keys.resize((maxLeafNodeLimit) / 2);
+			cursor->ptr2TreeOrData.dataPtr.resize((maxLeafNodeLimit) / 2);
+			for (int i = 0; i < (maxLeafNodeLimit) / 2; i++) {
 				cursor->keys[i] = virtualNode[i];
 				cursor->ptr2TreeOrData.dataPtr[i] = virtualDataNode[i];
 			}
 
 			//Pushing new keys & dataPtr to NewNode
-			for (int i = (maxLeafLimit + 1) / 2; i < virtualNode.size(); i++)
+			for (int i = (maxLeafNodeLimit) / 2; i < virtualNode.size(); i++)
 			{
 				newLeaf->keys.push_back(virtualNode[i]);
 				newLeaf->ptr2TreeOrData.dataPtr.push_back(virtualDataNode[i]);
@@ -251,6 +259,7 @@ void BPTree::insert(int key, FILE* filePtr) {
 				newRoot->ptr2TreeOrData.ptr2Tree.push_back(cursor);
 				newRoot->ptr2TreeOrData.ptr2Tree.push_back(newLeaf);
 				root->ptr2parent = newRoot;
+				newLeaf->ptr2parent = newRoot;
 				root = newRoot;
 				cout << "Created new Root!" << endl;
 			}
@@ -263,20 +272,29 @@ void BPTree::insert(int key, FILE* filePtr) {
 
 }
 
-void BPTree::insertInternal(int x, Node* cursor, Node* child) {
-	if (cursor->keys.size() < maxInternalLimit) {
+void BPTree::insertInternal(int x, Node* cursor, Node* child) {//in Internal Nodes
+	if (cursor->keys.size() < maxIntChildLimit-1) {
 		/*
 			If cursor is not full find the position for the position for the new key.
 		*/
-		int i = std::lower_bound(cursor->keys.begin(), cursor->keys.end(), x) - cursor->keys.begin();
+		int i = std::upper_bound(cursor->keys.begin(), cursor->keys.end(), x) - cursor->keys.begin();
 		cursor->keys.push_back(x);
 		cursor->ptr2TreeOrData.ptr2Tree.push_back(child);
 
-		for (int j = cursor->keys.size(); j > i; j--) {// shifting the position for keys and datapointer
-			cursor->keys[j] = cursor->keys[j - 1];
-			cursor->ptr2TreeOrData.ptr2Tree[j] = cursor->ptr2TreeOrData.ptr2Tree[j - 1];
-		}
+		if (i != cursor->keys.size() - 1) {// if there are more than one element
+			// Different loops because size is different for both (i.e. diff of one)
+			
+			for (int j = cursor->keys.size() - 1; j > i; j--) {// shifting the position for keys and datapointer
+				cursor->keys[j] = cursor->keys[j - 1];
+			}
 
+			for (int j = cursor->ptr2TreeOrData.ptr2Tree.size() - 1; j > (i+1); j--) {
+				cursor->ptr2TreeOrData.ptr2Tree[j] = cursor->ptr2TreeOrData.ptr2Tree[j - 1];
+			}
+
+			cursor->keys[i] = x;
+			cursor->ptr2TreeOrData.ptr2Tree[i+1] = child;
+		}
 		cout << "Inserted key in the internal node :)" << endl;
 	}
 	else {//splitting
@@ -287,34 +305,47 @@ void BPTree::insertInternal(int x, Node* cursor, Node* child) {
 		vector<Node*> virtualTreePtrNode(cursor->ptr2TreeOrData.ptr2Tree);
 
 
-		int i = std::lower_bound(cursor->keys.begin(), cursor->keys.end(), x) - cursor->keys.begin();//finding the position for x
+		int i = std::upper_bound(cursor->keys.begin(), cursor->keys.end(), x) - cursor->keys.begin();//finding the position for x
 		virtualKeyNode.push_back(x);// to create space
 		virtualTreePtrNode.push_back(child);// to create space
-		for (int j = virtualKeyNode.size(); j > i; j--) {// shifting the position for keys and datapointer
-			virtualKeyNode[j] = virtualKeyNode[j - 1];
-			virtualTreePtrNode[j] = virtualTreePtrNode[j - 1];
+
+		if (i != virtualKeyNode.size() - 1) {
+			for (int j = virtualKeyNode.size()-1; j > i; j--) {// shifting the position for keys and datapointer
+				virtualKeyNode[j] = virtualKeyNode[j - 1];
+			}
+
+			for (int j = virtualTreePtrNode.size() - 1; j > (i + 1); j--) {
+				virtualTreePtrNode[j] = virtualTreePtrNode[j - 1];
+			}
+
+			virtualKeyNode[i] = x;
+			virtualTreePtrNode[i + 1] = child;
 		}
 
-		int partitionKey;//need while passing it to the parent
-		if (virtualKeyNode.size() % 2 != 0)
-			partitionKey = virtualKeyNode[virtualKeyNode.size() / 2];
-		else
-			partitionKey = virtualKeyNode[(virtualKeyNode.size() / 2) + 1];//right biased 
+		int partitionKey;//exclude middle element while splitting
+		partitionKey = virtualKeyNode[(virtualKeyNode.size() / 2) ];//right biased
+		int partitionIdx = (virtualKeyNode.size() / 2);
 
 		//resizing and copying the keys & TreePtr to OldNode
-		cursor->keys.resize((maxInternalLimit + 1) / 2);
-		cursor->ptr2TreeOrData.ptr2Tree.resize((maxInternalLimit + 1) / 2);
-		for (int i = 0; i < (maxInternalLimit + 1) / 2; i++) {
+		cursor->keys.resize((partitionIdx);
+		cursor->ptr2TreeOrData.ptr2Tree.resize(partitionIdx + 1);
+		for (int i = 0; i < partitionIdx; i++) {
 			cursor->keys[i] = virtualKeyNode[i];
+		}
+
+		for (int i = 0; i < partitionIdx + 1; i++) {
 			cursor->ptr2TreeOrData.ptr2Tree[i] = virtualTreePtrNode[i];
 		}
+
 		Node* newInternalNode = new Node;
 		newInternalNode->ptr2parent = cursor->ptr2parent; //setting the parent
 		//Pushing new keys & TreePtr to NewNode
-		int init = (virtualKeyNode.size() % 2) ? ((virtualKeyNode.size() / 2) + 2) : (virtualKeyNode.size() / 2 + 1);
-		for (int i = init; i < virtualKeyNode.size(); i++)
-		{
+
+		for (int i = partitionIdx + 1; i < virtualKeyNode.size(); i++){
 			newInternalNode->keys.push_back(virtualKeyNode[i]);
+		}
+
+		for (int i = partitionIdx + 1; i < virtualTreePtrNode.size(); i++) {// because only key is excluded not the pointer
 			newInternalNode->ptr2TreeOrData.ptr2Tree.push_back(virtualTreePtrNode[i]);
 		}
 
@@ -327,6 +358,8 @@ void BPTree::insertInternal(int x, Node* cursor, Node* child) {
 			newRoot->ptr2TreeOrData.ptr2Tree.push_back(cursor);
 			newRoot->ptr2TreeOrData.ptr2Tree.push_back(newInternalNode);
 
+			cursor->ptr2parent = newRoot;
+			newInternalNode->ptr2parent = newRoot;
 			root = newRoot;
 			cout << "Created new ROOT!" << endl;
 		}
@@ -334,7 +367,7 @@ void BPTree::insertInternal(int x, Node* cursor, Node* child) {
 			/*
 				::Recursion::
 			*/
-			insertInternal(partitionKey, cursor->ptr2parent, cursor);
+			insertInternal(partitionKey, cursor->ptr2parent, newInternalNode);
 		}
 	}
 }

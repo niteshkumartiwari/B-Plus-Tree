@@ -11,6 +11,13 @@ Implementing B+ tree using C++
 1.	We are making a right biased tree. By this we mean if maxLimits are even we will split them
 	in such a way that right sibling has one element greater.
 
+2.	Insertion is based on the primary key. Hence all the properties of the primary key has to be followed.
+	No dublicate insertion has to be done with same primary key!
+
+3.	In the code we have used a ptr2parent which directly give access to the parent of the node with ease, which is little
+	bit deviated from B+ Tree defination where we don't use it. Consequences of this are yet to be unfold. Meanwhile, I have
+	added it as a  question in [stackoverflow](https://stackoverflow.com/questions/57831014/why-we-are-not-saving-the-parent-pointer-in-b-tree-for-easy-upward-traversal-in)(I Will modify the code if major challenges are foreseen.
+
 
 ## Some UseFul Properties of B+ Tree:
 
@@ -21,8 +28,9 @@ Implementing B+ tree using C++
 		ii.	ceil(maxInternalLimit)-1<= #of keys <= maxInternalLimit-1
 		
 	b.	For Leaf Nodes-
-		i.	ceil(maxLeafLimit)<= #of children <= maxLeafLimit
-		ii.	ceil(maxLeafLimit)-1<= #of keys <= maxLeafLimit-1	
+		i.	ceil(maxLeafLimit)<= #of keys <= maxLeafLimit
+		ii.	since Leaf node will point to the dataPtr. It will be of same size as maxLeafLimit to correspond
+			to every key !!!
 
 	![B+ TreeBasics](img/prop_1.png)
 	![B+ TreeBasics](img/prop_2.png)
@@ -60,7 +68,7 @@ We have followed 2nd method which was comparatively easy to implement with relat
 here is the complete algorithm for [reference](http://www.cburch.com/cs/340/reading/btree/index.html?fbclid=IwAR0QFRcpIVL19PdMtZU0-wG18f-rwGS4lNvzpEAsdaZCL7BrNRBuFffiPJ0)
 
 Descend to the leaf node where leaf fits :
-a.	If the node has empty space, insert the key/reference pair into the node.
+a.	If the node has empty space, insert the key/reference pair into the node and We are DONE!
 b.	If the node is already full, split it into two nodes, distributing the keys evenly. 
 	i.	If the node is leaf,take the copy of minimum in the second node and repeat this algorithm to 
 		insert it in parent node.
