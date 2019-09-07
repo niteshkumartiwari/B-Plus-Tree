@@ -49,13 +49,13 @@ class BPTree {
 		::For Root Node :=
 			The root node has, at least two tree pointers
 		::For Internal Nodes:=
-			1. ceil(maxInternalNodes/2)     <=  #of children <= maxInternalNodes
-			2. ceil(maxInternalNodes/2)-1  <=  #of keys     <= maxInternalNodes -1
+			1. ceil(maxInternalLimit/2)     <=  #of children <= maxInternalLimit
+			2. ceil(maxInternalLimit/2)-1  <=  #of keys     <= maxInternalLimit -1
 		::For Leaf Nodes :=
-			1. ceil(maxLeafNodes/2)-1   <=  #of keys     <= maxLeafNodes -1
+			1. ceil(maxLeafLimit/2)   <=  #of keys     <= maxLeafLimit -1
 	*/
 private:
-	int maxInternalNodes, maxLeafNodes;
+	int maxInternalLimit, maxLeafLimit;
 	Node* root; //Pointer to the B+ Tree root
 	void insertInternal(int x, Node* cursor, Node* child); //Insert x from child in cursor(parent) 
 
@@ -71,10 +71,10 @@ public:
 
 BPTree::BPTree() {
 	/*
-		By Default it will take the maxInternalNodes as 4. And
-		maxLeafNodes as 3.
+		By Default it will take the maxInternalLimit as 4. And
+		maxLeafLimit as 3.
 
-		::REASON FOR TWO SEPERATE VARIABLES maxInternalNodes & maxLeafNodes !!
+		::REASON FOR TWO SEPERATE VARIABLES maxInternalLimit & maxLeafLimit !!
 		We are keeping the two seperate Orders
 		because Internal Nodes can hold more values in one disc block
 		as the size of the Tree pointer is small but the size of the
@@ -83,14 +83,14 @@ BPTree::BPTree() {
 		reson to reperate out these to variables.
 
 	*/
-	this->maxInternalNodes = 4;
-	this->maxLeafNodes = 3;
+	this->maxInternalLimit = 4;
+	this->maxLeafLimit = 3;
 	this->root = NULL;
 }
 
 BPTree::BPTree(int degreeInternal, int degreeLeaf) {
-	this->maxInternalNodes = degreeInternal;
-	this->maxLeafNodes = degreeLeaf;
+	this->maxInternalLimit = degreeInternal;
+	this->maxLeafLimit = degreeLeaf;
 	this->root = NULL;
 }
 
@@ -184,7 +184,7 @@ void BPTree::insert(int key, FILE* filePtr) {
 		}
 
 		//now cursor is the leaf node in which we'll insert the new key
-		if (cursor->keys.size() < maxLeafNodes) {
+		if (cursor->keys.size() < maxLeafLimit) {
 			/*
 				If current leaf Node is not FULL, find the correct position for the new key!
 			*/
@@ -232,15 +232,15 @@ void BPTree::insert(int key, FILE* filePtr) {
 			newLeaf->ptr2next = temp;
 
 			//resizing and copying the keys & dataPtr to OldNode
-			cursor->keys.resize((maxLeafNodes + 1) / 2);
-			cursor->ptr2TreeOrData.dataPtr.resize((maxLeafNodes + 1) / 2);
-			for (int i = 0; i < (maxLeafNodes + 1) / 2; i++) {
+			cursor->keys.resize((maxLeafLimit + 1) / 2);
+			cursor->ptr2TreeOrData.dataPtr.resize((maxLeafLimit + 1) / 2);
+			for (int i = 0; i < (maxLeafLimit + 1) / 2; i++) {
 				cursor->keys[i] = virtualNode[i];
 				cursor->ptr2TreeOrData.dataPtr[i] = virtualDataNode[i];
 			}
 
 			//Pushing new keys & dataPtr to NewNode
-			for (int i = (maxLeafNodes + 1) / 2; i < virtualNode.size(); i++)
+			for (int i = (maxLeafLimit + 1) / 2; i < virtualNode.size(); i++)
 			{
 				newLeaf->keys.push_back(virtualNode[i]);
 				newLeaf->ptr2TreeOrData.dataPtr.push_back(virtualDataNode[i]);
@@ -269,7 +269,7 @@ void BPTree::insert(int key, FILE* filePtr) {
 }
 
 void BPTree::insertInternal(int x, Node* cursor, Node* child) {
-	if (cursor->keys.size() < maxInternalNodes) {
+	if (cursor->keys.size() < maxInternalLimit) {
 		/*
 			If cursor is not full find the position for the position for the new key.
 		*/
@@ -307,9 +307,9 @@ void BPTree::insertInternal(int x, Node* cursor, Node* child) {
 			partitionKey = virtualKeyNode[(virtualKeyNode.size() / 2) + 1];//right biased 
 
 		//resizing and copying the keys & TreePtr to OldNode
-		cursor->keys.resize((maxInternalNodes + 1) / 2);
-		cursor->ptr2TreeOrData.ptr2Tree.resize((maxInternalNodes + 1) / 2);
-		for (int i = 0; i < (maxInternalNodes + 1) / 2; i++) {
+		cursor->keys.resize((maxInternalLimit + 1) / 2);
+		cursor->ptr2TreeOrData.ptr2Tree.resize((maxInternalLimit + 1) / 2);
+		for (int i = 0; i < (maxInternalLimit + 1) / 2; i++) {
 			cursor->keys[i] = virtualKeyNode[i];
 			cursor->ptr2TreeOrData.ptr2Tree[i] = virtualTreePtrNode[i];
 		}
