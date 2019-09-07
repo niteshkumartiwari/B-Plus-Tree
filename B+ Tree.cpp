@@ -127,15 +127,10 @@ void BPTree::search(int key) {
 				same value in the right node;(STL is doing Binary search at back end)
 			*/
 			int idx = std::upper_bound(cursor->keys.begin(), cursor->keys.end(), key) - cursor->keys.begin();
-
-			if (idx == cursor->keys.size())
-				cursor = cursor->ptr2TreeOrData.ptr2Tree[idx];
-			else
-				cursor = cursor->ptr2TreeOrData.ptr2Tree[idx];
-
+			cursor = cursor->ptr2TreeOrData.ptr2Tree[idx]; //upper_bound takes care of all the edge cases
 		}
 
-		int idx = std::lower_bound(cursor->keys.begin(), cursor->keys.end(), key) - cursor->keys.begin();
+		int idx = std::lower_bound(cursor->keys.begin(), cursor->keys.end(), key) - cursor->keys.begin(); //Binary search
 
 		if (idx == cursor->keys.size() || cursor->keys[idx] != key) {
 			cout << "HUH!! Key NOT FOUND" << endl;
