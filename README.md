@@ -16,7 +16,7 @@ Implementing B+ tree using C++
 
 3.	In the code we have used a ptr2parent which directly give access to the parent of the node with ease, which is little
 	bit deviated from B+ Tree defination where we don't use it. Consequences of this are yet to be unfold. Meanwhile, I have
-	added it as a  question in [stackoverflow](https://stackoverflow.com/questions/57831014/why-we-are-not-saving-the-parent-pointer-in-b-tree-for-easy-upward-traversal-in)(I Will modify the code if major challenges are foreseen.
+	added it as a  question in [stackoverflow](https://stackoverflow.com/questions/57831014/why-we-are-not-saving-the-parent-pointer-in-b-tree-for-easy-upward-traversal-in) (I Will modify the code if major challenges are foreseen).
 
 
 ## Some UseFul Properties of B+ Tree:
@@ -64,6 +64,9 @@ work give an element to the right sibling and if this also doesn't work split it
 
 2.	Simply Split into two nodes.
 
+**Major Drawback of 1**
+	Increases I/O, especially if we	check both siblings!!!
+
 We have followed 2nd method which was comparatively easy to implement with relatively less hustle. So, 
 here is the complete algorithm for [reference](http://www.cburch.com/cs/340/reading/btree/index.html?fbclid=IwAR0QFRcpIVL19PdMtZU0-wG18f-rwGS4lNvzpEAsdaZCL7BrNRBuFffiPJ0)
 
@@ -75,5 +78,8 @@ b.	If the node is already full, split it into two nodes, distributing the keys e
 	ii.	If the node is non-leaf, exclude the middle value during split and insert the excluded value into 
 		the	parent.
 
+	![B+ TreeBasics](img/insert_1.png)
+	![B+ TreeBasics](img/insert_2.png)
+	![B+ TreeBasics](img/insert_3.png)
 
 
