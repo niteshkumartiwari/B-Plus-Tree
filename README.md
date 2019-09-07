@@ -78,10 +78,10 @@ b.	If the node is already full, split it into two nodes, distributing the keys e
 	ii.	If the node is non-leaf, exclude the middle value during split and insert the excluded value into 
 		the	parent.
 
-	![B+ Insertion](https://github.com/niteshkumartiwari/B-Plus-Tree/blob/master/img/insert_1.png)
+	![B+ Insertion](img/insert_1.png)
 
-	![B+ Insertion](https://github.com/niteshkumartiwari/B-Plus-Tree/blob/master/img/insert_2.png)
+	![B+ Insertion1](img/insert_2.png)
 
-	![B+ Insertion](https://github.com/niteshkumartiwari/B-Plus-Tree/blob/master/img/insert_3.png)
+	![B+ Insertion2](img/prop_1.png)
 
 
