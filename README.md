@@ -81,4 +81,4 @@ b.	If the node is already full, split it into two nodes, distributing the keys e
 
 
 
-	![B+ TreeBasics](img/prop_2.png)
+	![InsertionBplus1](https://github.com/niteshkumartiwari/B-Plus-Tree/blob/master/img/insert_1.png)
