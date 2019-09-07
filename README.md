@@ -65,7 +65,8 @@ work give an element to the right sibling and if this also doesn't work split it
 2.	Simply Split into two nodes.
 
 **Major Drawback of 1**
-	Increases I/O, especially if we	check both siblings!!!
+	Increases I/O, especially if we	check both siblings!!!
+
 
 We have followed 2nd method which was comparatively easy to implement with relatively less hustle. So, 
 here is the complete algorithm for [reference](http://www.cburch.com/cs/340/reading/btree/index.html?fbclid=IwAR0QFRcpIVL19PdMtZU0-wG18f-rwGS4lNvzpEAsdaZCL7BrNRBuFffiPJ0)
@@ -79,8 +80,5 @@ b.	If the node is already full, split it into two nodes, distributing the keys e
 		the	parent.
 
 
-	![insert1](img/insert_1.png)
 
-	![insert2](img/insert_2.png)
-
-	![insert3](img/insert_3.png)
+	![B+ TreeBasics](img/prop_2.png)
