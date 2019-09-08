@@ -8,7 +8,7 @@ Implementing B+ tree using C++
 
 ## Default DataBase Schema :
 
-	![DatabaseSchema](img/database.jpg)
+	![DatabaseSchema] (img/database.jpg)
 
 ## Assumptions in our Tree :
 
