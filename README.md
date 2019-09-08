@@ -8,7 +8,9 @@ Implementing B+ tree using C++
 
 ## Default DataBase Schema :
 
-	![DatabaseSchema] (img/database.jpg)
+Our DataBase Schema Will look something like this-
+	![1](img/database.jpg)
+
 
 ## Assumptions in our Tree :
 
@@ -83,10 +85,7 @@ b.	If the node is already full, split it into two nodes, distributing the keys e
 	ii.	If the node is non-leaf, exclude the middle value during split and insert the excluded value into 
 		the	parent.
 
-
-
+Let's see what would happen if we insert 8 in the below tree :-
 	![InsertionBplus1](img/insert_1.png)
-
 	![InsertionBplus2](img/insert_2.png)
-
 	![InsertionBplus3](img/insert_3.png)
