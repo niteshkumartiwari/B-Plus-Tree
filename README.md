@@ -6,6 +6,10 @@ Implementing B+ tree using C++
 - [ ] Structuring the main Function
 - [ ] Adding animations (AddOn)
 
+## Default DataBase Schema :
+
+	![DatabaseSchema](img/database.jpg)
+
 ## Assumptions in our Tree :
 
 1.	We are making a right biased tree. By this we mean if maxLimits are even we will split them
@@ -81,4 +85,4 @@ b.	If the node is already full, split it into two nodes, distributing the keys e
 
 
 
-	![InsertionBplus1](https://github.com/niteshkumartiwari/B-Plus-Tree/blob/master/img/insert_1.png)
+	![InsertionBplus1](img/insert_1.png)
