@@ -86,3 +86,7 @@ b.	If the node is already full, split it into two nodes, distributing the keys e
 
 
 	![InsertionBplus1](img/insert_1.png)
+
+	![InsertionBplus2](img/insert_2.png)
+
+	![InsertionBplus3](img/insert_3.png)

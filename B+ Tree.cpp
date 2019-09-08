@@ -373,6 +373,18 @@ void BPTree::insertInternal(int x, Node* cursor, Node* child) {//in Internal Nod
 }
 
 int main() {
+	/*
+		Please have a look at the default schema to get to know about the table
+		Reference - img/database.jpg
+	*/
+
+	bool flag = false;
+
+	while (1) {
+		cout << "Please provide the input with respective keys : " << endl;
+		cout << "\tPress 1: Insertion \n\tPress 2: Search \n\tPress 3: Print Tree\n\t 4: ABORT!" << endl;
+
+	}
 
 	return 0;
 }
