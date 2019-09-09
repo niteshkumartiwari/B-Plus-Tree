@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
+#include <filesystem>
 
 using namespace std;
 
@@ -146,7 +147,21 @@ void BPTree::search(int key) {
 			We can fetch the data from the disc in main memory using data-ptr
 			using cursor->dataPtr[idx]
 		*/
+
+		string fileName = "DBFiles/";
+		string data;
+		fileName += to_string(key) + ".txt";
+		FILE* filePtr = fopen(fileName.c_str(), "r");
 		cout << "Hurray!! Key FOUND" << endl;
+		cout << "Corresponding Tuple Data is: ";
+		char ch = fgetc(filePtr);
+		while (ch != EOF)
+		{
+			printf("%c", ch);
+			ch = fgetc(filePtr);
+		}
+		fclose(filePtr);
+		cout << endl;
 	}
 }
 
@@ -403,7 +418,8 @@ void insertionMethod(BPTree * *bPTree) {
 	cout << "\nWhat's the Name, Age and Marks acquired?: ";
 	cin >> name >> age >> marks;
 
-	string fileName = to_string(rollNo) + ".txt";
+	string fileName = "DBFiles/";
+	fileName += to_string(rollNo) + ".txt";
 	FILE* filePtr = fopen(fileName.c_str(), "w");
 	string userTuple = name + " " + to_string(age) + " " + to_string(marks) + "\n";
 	fprintf(filePtr, userTuple.c_str());
@@ -422,6 +438,7 @@ void searchMethod(BPTree * bPTree) {
 }
 
 void printMethod(BPTree * bPTree) {
+	cout << "Here is your File Structure" << endl;
 	bPTree->display(bPTree->getRoot());
 }
 
