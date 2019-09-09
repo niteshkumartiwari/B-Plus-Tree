@@ -2,8 +2,8 @@
 Implementing B+ tree using C++
 - [x] Search 
 - [X] Insert
+- [X] Structuring the main Function
 - [ ] Delete
-- [ ] Structuring the main Function
 - [ ] Adding animations (AddOn)
 
 ## Default DataBase Schema :
