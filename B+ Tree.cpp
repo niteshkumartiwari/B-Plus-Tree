@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <vector>
 #include <algorithm>
 #include <fstream>
@@ -17,7 +17,7 @@ class Node {
 private:
 	bool isLeaf;
 	vector<int> keys;
-	Node* ptr2parent; //Pointer to go to parent node
+	//Node* ptr2parent; //Pointer to go to parent node CANNOT USE check https://stackoverflow.com/questions/57831014/why-we-are-not-saving-the-parent-pointer-in-b-tree-for-easy-upward-traversal-in
 	Node* ptr2next; //Pointer to connect next node for leaf nodes
 	union ptr {//to make memory efficient Node
 		vector<Node*> ptr2Tree; //Array of pointers to Children sub-trees for intermediate Nodes
@@ -43,7 +43,6 @@ Node::ptr::~ptr() {
 
 Node::Node() {
 	this->isLeaf = false;
-	this->ptr2parent = NULL;
 	this->ptr2next = NULL;
 }
 
@@ -61,7 +60,8 @@ private:
 	int maxIntChildLimit;//Limiting  #of children for internal Nodes!
 	int maxLeafNodeLimit;// Limiting #of nodes for leaf Nodes!!!
 	Node* root; //Pointer to the B+ Tree root
-	void insertInternal(int x, Node* cursor, Node* child); //Insert x from child in cursor(parent) 
+	void insertInternal(int x, Node* cursor, Node* child); //Insert x from child in cursor(parent)
+	Node* findParent(Node* cursor, Node* child);
 
 public:
 	BPTree();
@@ -150,7 +150,7 @@ void BPTree::search(int key) {
 	}
 }
 
-void BPTree::insert(int key, FILE* filePtr) {//in Leaf Node
+void BPTree::insert(int key, FILE * filePtr) {//in Leaf Node
 	/*
 		1. If the node has an empty space, insert the key/reference pair into the node.
 		2. If the node is already full, split it into two nodes, distributing the keys
@@ -172,9 +172,10 @@ void BPTree::insert(int key, FILE* filePtr) {//in Leaf Node
 	}
 	else {
 		Node* cursor = root;
-
+		Node* parent=NULL;
 		//searching for the possible position for the given key by doing the same procedure we did in search
 		while (cursor->isLeaf == false) {
+			parent = cursor;
 			int idx = std::upper_bound(cursor->keys.begin(), cursor->keys.end(), key) - cursor->keys.begin();
 			cursor = cursor->ptr2TreeOrData.ptr2Tree[idx];
 		}
@@ -230,7 +231,6 @@ void BPTree::insert(int key, FILE* filePtr) {//in Leaf Node
 
 			Node* newLeaf = new Node;
 			newLeaf->isLeaf = true;
-			newLeaf->ptr2parent = cursor->ptr2parent;
 
 			//swapping the next ptr
 			Node* temp = cursor->ptr2next;
@@ -261,21 +261,19 @@ void BPTree::insert(int key, FILE* filePtr) {//in Leaf Node
 				newRoot->keys.push_back(newLeaf->keys[0]);
 				newRoot->ptr2TreeOrData.ptr2Tree.push_back(cursor);
 				newRoot->ptr2TreeOrData.ptr2Tree.push_back(newLeaf);
-				root->ptr2parent = newRoot;
-				newLeaf->ptr2parent = newRoot;
 				root = newRoot;
 				cout << "Created new Root!" << endl;
 			}
 			else {
 				// Insert new key in the parent
-				insertInternal(newLeaf->keys[0], cursor->ptr2parent, newLeaf);
+				insertInternal(newLeaf->keys[0], parent, newLeaf);
 			}
 		}
 	}
 
 }
 
-void BPTree::insertInternal(int x, Node* cursor, Node* child) {//in Internal Nodes
+void BPTree::insertInternal(int x, Node * cursor, Node * child) {//in Internal Nodes
 	if (cursor->keys.size() < maxIntChildLimit - 1) {
 		/*
 			If cursor is not full find the position for the position for the new key.
@@ -341,7 +339,6 @@ void BPTree::insertInternal(int x, Node* cursor, Node* child) {//in Internal Nod
 		}
 
 		Node* newInternalNode = new Node;
-		newInternalNode->ptr2parent = cursor->ptr2parent; //setting the parent
 		//Pushing new keys & TreePtr to NewNode
 
 		for (int i = partitionIdx + 1; i < virtualKeyNode.size(); i++) {
@@ -361,8 +358,6 @@ void BPTree::insertInternal(int x, Node* cursor, Node* child) {//in Internal Nod
 			newRoot->ptr2TreeOrData.ptr2Tree.push_back(cursor);
 			newRoot->ptr2TreeOrData.ptr2Tree.push_back(newInternalNode);
 
-			cursor->ptr2parent = newRoot;
-			newInternalNode->ptr2parent = newRoot;
 			root = newRoot;
 			cout << "Created new ROOT!" << endl;
 		}
@@ -370,12 +365,36 @@ void BPTree::insertInternal(int x, Node* cursor, Node* child) {//in Internal Nod
 			/*
 				::Recursion::
 			*/
-			insertInternal(partitionKey, cursor->ptr2parent, newInternalNode);
+			insertInternal(partitionKey, findParent(root, cursor), newInternalNode);
 		}
 	}
 }
 
-void insertionMethod(BPTree** bPTree) {
+Node* BPTree::findParent(Node* cursor, Node* child) {
+	/*
+		Finds parent using depth first traversal and ignores leaf nodes as they cannot be parents
+		also ignores second last level because we will never find parent of a leaf node during insertion using this function
+	*/
+
+	Node* parent=NULL;
+
+	if (cursor->isLeaf || cursor->ptr2TreeOrData.ptr2Tree[0]->isLeaf)
+		return NULL;
+
+	for (int i = 0; i < cursor->ptr2TreeOrData.ptr2Tree.size(); i++) {
+		if (cursor->ptr2TreeOrData.ptr2Tree[i] == child) {
+			parent = cursor;
+			return parent;
+		}
+		else {
+			parent = findParent(cursor->ptr2TreeOrData.ptr2Tree[i], child);
+		}
+	}
+
+	return parent;
+}
+
+void insertionMethod(BPTree * *bPTree) {
 	int rollNo, age, marks;
 	string name;
 
@@ -394,7 +413,7 @@ void insertionMethod(BPTree** bPTree) {
 	fclose(filePtr);
 }
 
-void searchMethod(BPTree* bPTree) {
+void searchMethod(BPTree * bPTree) {
 	int rollNo;
 	cout << "What's the RollNo to Search? ";
 	cin >> rollNo;
@@ -402,7 +421,7 @@ void searchMethod(BPTree* bPTree) {
 	bPTree->search(rollNo);
 }
 
-void printMethod(BPTree* bPTree) {
+void printMethod(BPTree * bPTree) {
 	bPTree->display(bPTree->getRoot());
 }
 
