@@ -63,12 +63,14 @@ private:
 	Node* root; //Pointer to the B+ Tree root
 	void insertInternal(int x, Node* cursor, Node* child); //Insert x from child in cursor(parent)
 	Node* findParent(Node* cursor, Node* child);
+	Node* firstLeftNode(Node* cursor);
 
 public:
 	BPTree();
 	BPTree(int degreeInternal, int degreeLeaf);
 	Node* getRoot();
 	void display(Node* cursor);
+	void seqDisplay(Node* cursor);
 	void search(int key);
 	void insert(int key, FILE* filePtr);
 	//void remove(int key);
@@ -117,6 +119,33 @@ void BPTree::display(Node* cursor) {
 				display(cursor->ptr2TreeOrData.ptr2Tree[i]);
 		}
 	}
+}
+
+Node* BPTree::firstLeftNode(Node* cursor) {
+	if (cursor->isLeaf)
+		return cursor;
+	for (int i = 0; i < cursor->ptr2TreeOrData.ptr2Tree.size(); i++)
+		if (cursor->ptr2TreeOrData.ptr2Tree[i] != NULL)
+			return firstLeftNode(cursor->ptr2TreeOrData.ptr2Tree[i]);
+
+	return NULL;
+}
+
+void BPTree::seqDisplay(Node* cursor) {
+	Node* firstLeft = firstLeftNode(cursor);
+
+	if (firstLeft == NULL) {
+		cout << "No Data in the Database yet!" << endl;
+		return;
+	}
+	while (firstLeft != NULL) {
+		for (int i = 0; i < firstLeft->keys.size(); i++) {
+			cout << firstLeft->keys[i] << " ";
+		}
+
+		firstLeft = firstLeft->ptr2next;
+	}
+	cout << endl;
 }
 
 void BPTree::search(int key) {
@@ -187,7 +216,7 @@ void BPTree::insert(int key, FILE * filePtr) {//in Leaf Node
 	}
 	else {
 		Node* cursor = root;
-		Node* parent=NULL;
+		Node* parent = NULL;
 		//searching for the possible position for the given key by doing the same procedure we did in search
 		while (cursor->isLeaf == false) {
 			parent = cursor;
@@ -385,13 +414,13 @@ void BPTree::insertInternal(int x, Node * cursor, Node * child) {//in Internal N
 	}
 }
 
-Node* BPTree::findParent(Node* cursor, Node* child) {
+Node* BPTree::findParent(Node * cursor, Node * child) {
 	/*
 		Finds parent using depth first traversal and ignores leaf nodes as they cannot be parents
 		also ignores second last level because we will never find parent of a leaf node during insertion using this function
 	*/
 
-	Node* parent=NULL;
+	Node* parent = NULL;
 
 	if (cursor->isLeaf || cursor->ptr2TreeOrData.ptr2Tree[0]->isLeaf)
 		return NULL;
@@ -438,8 +467,15 @@ void searchMethod(BPTree * bPTree) {
 }
 
 void printMethod(BPTree * bPTree) {
-	cout << "Here is your File Structure" << endl;
-	bPTree->display(bPTree->getRoot());
+	int opt;
+	cout << "Press \n\t1.Hierarical-Display \n\t2.Sequential-Display\n";
+	cin >> opt;
+
+	cout << "\nHere is your File Structure" << endl;
+	if (opt == 1)
+		bPTree->display(bPTree->getRoot());
+	else
+		bPTree->seqDisplay(bPTree->getRoot());
 }
 
 int main() {
