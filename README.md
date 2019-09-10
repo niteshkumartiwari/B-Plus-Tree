@@ -22,7 +22,8 @@ Our DataBase Schema Will look something like this-
 
 3.	In the code we have used a ptr2parent which directly give access to the parent of the node with ease, which is little
 	bit deviated from B+ Tree defination where we don't use it. Consequences of this are yet to be unfold. Meanwhile, I have
-	added it as a  question in [stackoverflow](https://stackoverflow.com/questions/57831014/why-we-are-not-saving-the-parent-pointer-in-b-tree-for-easy-upward-traversal-in) (I Will modify the code if major challenges are foreseen).
+	added it as a  question in [stackoverflow](https://stackoverflow.com/questions/57831014/why-we-are-not-saving-the-parent-pointer-in-b-tree-for-easy-upward-traversal-in) (I Will modify the code if major challenges are foreseen).(NOW IT HAS BEEN REMOVED
+	AS IT WILL CREATE A MESS WHILE WE DELETION.
 
 
 ## Some UseFul Properties of B+ Tree:
