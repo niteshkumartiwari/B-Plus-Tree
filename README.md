@@ -29,7 +29,11 @@ to make more tables then we can make that many BPTree objects !!
 
 3.	In the code we have used a ptr2parent which directly give access to the parent of the node with ease, which is little
 	bit deviated from B+ Tree defination where we don't use it. Consequences of this are yet to be unfold. Meanwhile, I have
-	added it as a  question in [stackoverflow](https://stackoverflow.com/questions/57831014/why-we-are-not-saving-the-parent-pointer-in-b-tree-for-easy-upward-traversal-in)(NOW IT HAS BEEN REMOVED AS IT WILL CREATE A MESS WHILE DELETION)
+	added it as a  question in [stackoverflow](https://stackoverflow.com/questions/57831014/why-we-are-not-saving-the-parent-pointer-in-b-tree-for-easy-upward-traversal-in) (NOW IT HAS BEEN REMOVED AS IT WILL CREATE A MESS WHILE DELETION).
+
+4.	We are saving the \*ptr2next explicitly while ideally it is saved as the last pointer in the pointerset. But here as we 
+	are using union to save the memory and seperate the leaf and non-leaf nodes, because of this \*ptr2next is explicitly
+	saved !!
 
 
 ## Some UseFul Properties of B+ Tree:
