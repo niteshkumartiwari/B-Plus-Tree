@@ -12,7 +12,7 @@ Our DataBase Schema Will look something like this-
 	![1](img/database.jpg)
 
 
-## Summary- What is the project all about? :
+## Summary- What is the project all about? 
 
 This project is small version of database system. Where we efficiently implement the B+ Tree for fast and efficient access
 of files in the disc. Your database tuples will be stores as a .txt file in DBFiles folder corresponding FILE* will be saved in the 
@@ -29,8 +29,7 @@ to make more tables then we can make that many BPTree objects !!
 
 3.	In the code we have used a ptr2parent which directly give access to the parent of the node with ease, which is little
 	bit deviated from B+ Tree defination where we don't use it. Consequences of this are yet to be unfold. Meanwhile, I have
-	added it as a  question in [stackoverflow](https://stackoverflow.com/questions/57831014/why-we-are-not-saving-the-parent-pointer-in-b-tree-for-easy-upward-traversal-in) (I Will modify the code if major challenges are foreseen).(NOW IT HAS BEEN REMOVED
-	AS IT WILL CREATE A MESS WHILE WE DELETION.
+	added it as a  question in [stackoverflow](https://stackoverflow.com/questions/57831014/why-we-are-not-saving-the-parent-pointer-in-b-tree-for-easy-upward-traversal-in)(NOW IT HAS BEEN REMOVED AS IT WILL CREATE A MESS WHILE DELETION)
 
 
 ## Some UseFul Properties of B+ Tree:
