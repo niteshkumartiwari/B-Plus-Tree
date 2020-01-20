@@ -6,6 +6,15 @@ Implementing B+ tree using C++
 - [ ] Delete
 - [ ] Adding animations (AddOn)
 
+## Usage :
+
+1.	Clone it to some place in your PC.
+2.	Install Visual Studios Community Edition -2019. 
+3.	File->create new project with existing code. 
+4.	Take a chill beer Run the code and Enjoy.
+(PS. Create an issue if you find any bug. Will be happy to fix it :))
+HAPPY CODING !!
+
 ## Default DataBase Schema :
 
 Our DataBase Schema Will look something like this-
