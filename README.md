@@ -3,7 +3,7 @@ Implementing B+ tree using C++
 - [x] Search 
 - [X] Insert
 - [X] Structuring the main Function
-- [ ] Delete
+- [X] Delete
 - [ ] Adding animations (AddOn)
 
 ## Usage :
