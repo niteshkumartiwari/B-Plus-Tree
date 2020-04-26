@@ -132,7 +132,7 @@ void BPTree::insert(int key, FILE* filePtr) {  //in Leaf Node
 void BPTree::insertInternal(int x, Node** cursor, Node** child) {  //in Internal Nodes
     if ((*cursor)->keys.size() < maxIntChildLimit - 1) {
         /*
-			If cursor is not full find the position for the position for the new key.
+			If cursor is not full find the position for the new key.
 		*/
         int i = std::upper_bound((*cursor)->keys.begin(), (*cursor)->keys.end(), x) - (*cursor)->keys.begin();
         (*cursor)->keys.push_back(x);
@@ -185,6 +185,7 @@ void BPTree::insertInternal(int x, Node** cursor, Node** child) {  //in Internal
 
         //resizing and copying the keys & TreePtr to OldNode
         (*cursor)->keys.resize(partitionIdx);
+        (*cursor)->ptr2TreeOrData.ptr2Tree.resize(partitionIdx + 1);
         (*cursor)->ptr2TreeOrData.ptr2Tree.reserve(partitionIdx + 1);
         for (int i = 0; i < partitionIdx; i++) {
             (*cursor)->keys[i] = virtualKeyNode[i];
