@@ -1,6 +1,8 @@
 #include <iostream>
 #include "B+ Tree.h"
 
+Node* parent = NULL;
+
 Node::ptr::ptr() {
 }
 
@@ -57,18 +59,17 @@ Node** BPTree::findParent(Node* cursor, Node* child) {
 		also ignores second last level because we will never find parent of a leaf node during insertion using this function
 	*/
 
-    Node* parent = NULL;
-
     if (cursor->isLeaf || cursor->ptr2TreeOrData.ptr2Tree[0]->isLeaf)
         return NULL;
 
     for (int i = 0; i < cursor->ptr2TreeOrData.ptr2Tree.size(); i++) {
         if (cursor->ptr2TreeOrData.ptr2Tree[i] == child) {
             parent = cursor;
-            return &parent;
         } else {
-            new (&cursor->ptr2TreeOrData.ptr2Tree) std::vector<Node*>;
-            parent = *findParent(cursor->ptr2TreeOrData.ptr2Tree[i], child);
+            //Commenting To Remove vector out of bound Error: 
+            //new (&cursor->ptr2TreeOrData.ptr2Tree) std::vector<Node*>;
+            Node* tmpCursor = cursor->ptr2TreeOrData.ptr2Tree[i];
+            findParent(tmpCursor, child);
         }
     }
 
