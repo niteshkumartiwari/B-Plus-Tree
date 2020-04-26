@@ -4,7 +4,10 @@ Implementing B+ tree using C++
 - [X] Insert
 - [X] Structuring the main Function
 - [X] Delete
-- [ ] Adding animations (AddOn)
+
+## Demo :
+
+![Demo](img/demo.gif)
 
 ## Usage :
 
