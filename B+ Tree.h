@@ -57,11 +57,15 @@ class BPTree {
     BPTree();
     BPTree(int degreeInternal, int degreeLeaf);
     Node* getRoot();
+    int getMaxIntChildLimit();
+    int getMaxLeafNodeLimit();
+    void setRoot(Node *);
     void display(Node* cursor);
     void seqDisplay(Node* cursor);
     void search(int key);
     void insert(int key, FILE* filePtr);
-    //void remove(int key);
+    void removeKey(int key);
+    void removeInternal(int x, Node* cursor, Node* child);
 };
 
 #endif

@@ -39,8 +39,20 @@ BPTree::BPTree(int degreeInternal, int degreeLeaf) {
     this->root = NULL;
 }
 
+int BPTree::getMaxIntChildLimit() {
+    return maxIntChildLimit;
+}
+
+int BPTree::getMaxLeafNodeLimit() {
+    return maxLeafNodeLimit;
+}
+
 Node* BPTree::getRoot() {
     return this->root;
+}
+
+void BPTree::setRoot(Node *ptr) {
+    this->root = ptr;
 }
 
 Node* BPTree::firstLeftNode(Node* cursor) {

@@ -50,11 +50,11 @@ to make more tables then we can make that many BPTree objects !!
 1. B+ Tree Unlike B Tree is defined by two order values one for leaf node and another for non-leaf node.
 	Minimum 50% should hold on B+ Tree Node.
 	a.	For Non-Leaf Nodes-
-		i.	ceil(maxInternalLimit)<= #of children <= maxInternalLimit
-		ii.	ceil(maxInternalLimit)-1<= #of keys <= maxInternalLimit-1
+		i.	ceil(maxInternalLimit/2)<= #of children <= maxInternalLimit
+		ii.	ceil(maxInternalLimit/2)-1<= #of keys <= maxInternalLimit-1
 		
 	b.	For Leaf Nodes-
-		i.	ceil(maxLeafLimit)<= #of keys <= maxLeafLimit
+		i.	ceil(maxLeafLimit/2)<= #of keys <= maxLeafLimit
 		ii.	since Leaf node will point to the dataPtr. It will be of same size as maxLeafLimit to correspond
 			to every key !!!
 
