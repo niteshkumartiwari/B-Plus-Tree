@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 #include "B+ Tree.h"
 
 void BPTree::removeKey(int x) {
