@@ -97,7 +97,7 @@ void BPTree::insert(int key, FILE* filePtr) {  //in Leaf Node
 
             //resizing and copying the keys & dataPtr to OldNode
             cursor->keys.resize((maxLeafNodeLimit) / 2 +1);//check +1 or not while partitioning
-            cursor->ptr2TreeOrData.dataPtr.reserve((maxLeafNodeLimit) / 2 +1);
+            cursor->ptr2TreeOrData.dataPtr.resize((maxLeafNodeLimit) / 2 +1);
             for (int i = 0; i <= (maxLeafNodeLimit) / 2; i++) {
                 cursor->keys[i] = virtualNode[i];
                 cursor->ptr2TreeOrData.dataPtr[i] = virtualDataNode[i];
@@ -186,7 +186,7 @@ void BPTree::insertInternal(int x, Node** cursor, Node** child) {  //in Internal
         //resizing and copying the keys & TreePtr to OldNode
         (*cursor)->keys.resize(partitionIdx);
         (*cursor)->ptr2TreeOrData.ptr2Tree.resize(partitionIdx + 1);
-        (*cursor)->ptr2TreeOrData.ptr2Tree.reserve(partitionIdx + 1);
+        (*cursor)->ptr2TreeOrData.ptr2Tree.resize(partitionIdx + 1);
         for (int i = 0; i < partitionIdx; i++) {
             (*cursor)->keys[i] = virtualKeyNode[i];
         }
