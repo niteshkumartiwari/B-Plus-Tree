@@ -48,7 +48,7 @@ void BPTree::removeKey(int x) {
 
 	auto itr = lower_bound(cursor->keys.begin(), cursor->keys.end(), x);
 
-	if (itr == cursor->keys.end()) {
+	if (found == false) {
 		cout << "Key Not Found in the Tree" << endl;
 		return;
 	}
@@ -83,7 +83,7 @@ void BPTree::removeKey(int x) {
 	}
 	
 	cout << "Deleted " << x << " From Leaf Node successfully" << endl;
-	if (cursor->keys.size() >= (getMaxLeafNodeLimit()+1) / 2) {
+	if ((cursor->keys.size() >= (getMaxLeafNodeLimit() + 1) / 2) || (cursor == root)) {
 		//Sufficient Node available for invariant to hold
 		return;
 	}
