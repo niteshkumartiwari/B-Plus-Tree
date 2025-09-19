@@ -6,8 +6,8 @@ public class Feature {
         this.isEnabled = isEnabled;
     }
 
-    public String getDescription() {
-        return description;
+    public void getDescription() {
+        System.out.println("Hello, World!"); 
     }
 
     public boolean isEnabled() {
