@@ -58,11 +58,16 @@ void BPTree::removeKey(int x) {
 	char filePtr[256];
 	strcpy(filePtr, fileName.c_str());
 
-	//delete cursor->ptr2TreeOrData.dataPtr[pos];//avoid memory leaks
+	// Close the file pointer if it's still open
+	if (cursor->ptr2TreeOrData.dataPtr[pos] != NULL) {
+		fclose(cursor->ptr2TreeOrData.dataPtr[pos]);
+		cursor->ptr2TreeOrData.dataPtr[pos] = NULL;
+	}
+	
 	if (remove(filePtr) == 0)
-		cout << "SuccessFully Deleted file: " << fileName << endl;
+		cout << "Successfully Deleted file: " << fileName << endl;
 	else
-		cout << "Unable to delete the file: " << fileName << endl;
+		cout << "Warning: Unable to delete the file: " << fileName << " (file may not exist)" << endl;
 
 	// Shifting the keys and dataPtr for the leaf Node
 	for (int i = pos; i < cursor->keys.size()-1; i++) {
@@ -96,7 +101,7 @@ void BPTree::removeKey(int x) {
 		Node* leftNode = parent->ptr2TreeOrData.ptr2Tree[leftSibling];
 
 		//Check if LeftSibling has extra Key to transfer
-		if (leftNode->keys.size() >= (getMaxLeafNodeLimit()+1) / 2 +1) {
+		if (leftNode->keys.size() > (getMaxLeafNodeLimit() + 1) / 2) {
 
 			//Transfer the maximum key from the left Sibling
 			int maxIdx = leftNode->keys.size()-1;
@@ -120,7 +125,7 @@ void BPTree::removeKey(int x) {
 		Node* rightNode = parent->ptr2TreeOrData.ptr2Tree[rightSibling];
 
 		//Check if RightSibling has extra Key to transfer
-		if (rightNode->keys.size() >= (getMaxLeafNodeLimit() + 1) / 2 + 1) {
+		if (rightNode->keys.size() > (getMaxLeafNodeLimit() + 1) / 2) {
 
 			//Transfer the minimum key from the right Sibling
 			int minIdx = 0;
@@ -151,7 +156,7 @@ void BPTree::removeKey(int x) {
 		leftNode->ptr2next = cursor->ptr2next;
 		cout << "Merging two leaf Nodes" << endl;
 		removeInternal(parent->keys[leftSibling], parent, cursor);//delete parent Node Key
-		//delete cursor;
+		delete cursor;
 	}
 	else if (rightSibling <= parent->keys.size()) {
 		Node* rightNode = parent->ptr2TreeOrData.ptr2Tree[rightSibling];
@@ -164,7 +169,7 @@ void BPTree::removeKey(int x) {
 		cursor->ptr2next = rightNode->ptr2next;
 		cout << "Merging two leaf Nodes" << endl;
 		removeInternal(parent->keys[rightSibling-1], parent, rightNode);//delete parent Node Key
-		//delete rightNode;
+		delete rightNode;
 	}
 
 }
@@ -179,13 +184,13 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 			// child Pointers
 			if (cursor->ptr2TreeOrData.ptr2Tree[1] == child) {
 				setRoot(cursor->ptr2TreeOrData.ptr2Tree[0]);
-				//delete cursor;
+				delete cursor;
 				cout << "Wow! New Changed Root" <<endl;
 				return;
 			}
 			else if (cursor->ptr2TreeOrData.ptr2Tree[0] == child) {
 				setRoot(cursor->ptr2TreeOrData.ptr2Tree[1]);
-				//delete cursor;
+				delete cursor;
 				cout << "Wow! New Changed Root" << endl;
 				return;
 			}
@@ -248,7 +253,7 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 		Node* leftNode = parent->ptr2TreeOrData.ptr2Tree[leftSibling];
 
 		//Check if LeftSibling has extra Key to transfer
-		if (leftNode->keys.size() >= (getMaxIntChildLimit() + 1) / 2 ) {
+		if (leftNode->keys.size() > (getMaxIntChildLimit() + 1) / 2 - 1) {
 
 			//transfer key from left sibling through parent
 			int maxIdxKey = leftNode->keys.size() - 1;
@@ -259,10 +264,11 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 			cursor->ptr2TreeOrData.ptr2Tree
 				.insert(cursor->ptr2TreeOrData.ptr2Tree.begin(), leftNode->ptr2TreeOrData.ptr2Tree[maxIdxPtr]);
 
-			//resize the left Sibling Node After Tranfer
+			//resize the left Sibling Node After Transfer
 			leftNode->keys.resize(maxIdxKey);
-			leftNode->ptr2TreeOrData.dataPtr.resize(maxIdxPtr);
+			leftNode->ptr2TreeOrData.ptr2Tree.resize(maxIdxPtr);
 
+			cout << "Transferred from left sibling of internal node" << endl;
 			return;
 		}
 	}
@@ -271,11 +277,10 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 	if (rightSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {
 		Node* rightNode = parent->ptr2TreeOrData.ptr2Tree[rightSibling];
 
-		//Check if LeftSibling has extra Key to transfer
-		if (rightNode->keys.size() >= (getMaxIntChildLimit() + 1) / 2) {
+		//Check if RightSibling has extra Key to transfer
+		if (rightNode->keys.size() > (getMaxIntChildLimit() + 1) / 2 - 1) {
 
 			//transfer key from right sibling through parent
-			int maxIdxKey = rightNode->keys.size() - 1;
 			cursor->keys.push_back(parent->keys[pos]);
 			parent->keys[pos] = rightNode->keys[0];
 			rightNode->keys.erase(rightNode->keys.begin());
@@ -283,9 +288,10 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 			//transfer the pointer from rightSibling to cursor
 			cursor->ptr2TreeOrData.ptr2Tree
 				.push_back(rightNode->ptr2TreeOrData.ptr2Tree[0]);
-			cursor->ptr2TreeOrData.ptr2Tree
-				.erase(cursor->ptr2TreeOrData.ptr2Tree.begin());
+			rightNode->ptr2TreeOrData.ptr2Tree
+				.erase(rightNode->ptr2TreeOrData.ptr2Tree.begin());
 			 
+			cout << "Transferred from right sibling of internal node" << endl;
 			return;
 		}
 	}
@@ -306,8 +312,8 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 			cursor->ptr2TreeOrData.ptr2Tree[i] = NULL;
 		}
 
-		cursor->ptr2TreeOrData.ptr2Tree.resize(0);
-		cursor->keys.resize(0);
+		// Clean up the merged node
+		delete cursor;
 
 		removeInternal(parent->keys[leftSibling], parent, cursor);
 		cout << "Merged with left sibling"<<endl;
@@ -327,8 +333,8 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 			rightNode->ptr2TreeOrData.ptr2Tree[i] = NULL;
 		}
 
-		rightNode->ptr2TreeOrData.ptr2Tree.resize(0);
-		rightNode->keys.resize(0);
+		// Clean up the merged node
+		delete rightNode;
 
 		removeInternal(parent->keys[rightSibling - 1], parent, rightNode);
 		cout << "Merged with right sibling\n";

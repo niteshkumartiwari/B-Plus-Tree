@@ -33,6 +33,7 @@ class Node {
     friend class BPTree;  // to access private members of the Node and hold the encapsulation concept
    public:
     Node();
+    ~Node();  // Destructor for proper cleanup
 };
 
 class BPTree {
@@ -52,10 +53,12 @@ class BPTree {
     void insertInternal(int x, Node** cursor, Node** child);  //Insert x from child in cursor(parent)
     Node** findParent(Node* cursor, Node* child);
     Node* firstLeftNode(Node* cursor);
+    void destroyTree(Node* node);                          // Helper function for cleanup
 
    public:
     BPTree();
     BPTree(int degreeInternal, int degreeLeaf);
+    ~BPTree();  // Destructor for proper cleanup
     Node* getRoot();
     int getMaxIntChildLimit();
     int getMaxLeafNodeLimit();

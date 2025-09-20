@@ -22,8 +22,12 @@ void insertionMethod(BPTree** bPTree) {
     string fileName = "DBFiles/";
     fileName += to_string(rollNo) + ".txt";
     FILE* filePtr = fopen(fileName.c_str(), "w");
+    if (filePtr == NULL) {
+        cout << "Error: Could not create file " << fileName << endl;
+        return;
+    }
     string userTuple = name + " " + to_string(age) + " " + to_string(marks) + "\n";
-    fprintf(filePtr, userTuple.c_str());
+    fprintf(filePtr, "%s", userTuple.c_str());
     //fclose(filePtr);
 
     (*bPTree)->insert(rollNo, filePtr);

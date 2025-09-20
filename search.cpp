@@ -36,6 +36,10 @@ void BPTree::search(int key) {
         string data;
         fileName += to_string(key) + ".txt";
         FILE* filePtr = fopen(fileName.c_str(), "r");
+        if (filePtr == NULL) {
+            cout << "Error: Could not open file " << fileName << endl;
+            return;
+        }
         cout << "Hurray!! Key FOUND" << endl;
         cout << "Corresponding Tuple Data is: ";
         char ch = fgetc(filePtr);

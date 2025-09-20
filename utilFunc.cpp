@@ -14,6 +14,22 @@ Node::Node() {
     this->ptr2next = NULL;
 }
 
+Node::~Node() {
+    // Clean up file pointers if this is a leaf node
+    if (isLeaf) {
+        for (size_t i = 0; i < ptr2TreeOrData.dataPtr.size(); i++) {
+            if (ptr2TreeOrData.dataPtr[i] != NULL) {
+                fclose(ptr2TreeOrData.dataPtr[i]);
+                ptr2TreeOrData.dataPtr[i] = NULL;
+            }
+        }
+        ptr2TreeOrData.dataPtr.~vector<FILE*>();
+    } else {
+        // Clean up child pointers for internal nodes
+        ptr2TreeOrData.ptr2Tree.~vector<Node*>();
+    }
+}
+
 BPTree::BPTree() {
     /*
         By Default it will take the maxIntChildLimit as 4. And
@@ -37,6 +53,23 @@ BPTree::BPTree(int degreeInternal, int degreeLeaf) {
     this->maxIntChildLimit = degreeInternal;
     this->maxLeafNodeLimit = degreeLeaf;
     this->root = NULL;
+}
+
+BPTree::~BPTree() {
+    destroyTree(root);
+}
+
+void BPTree::destroyTree(Node* node) {
+    if (node == NULL) return;
+    
+    if (!node->isLeaf) {
+        // Recursively delete all children
+        for (size_t i = 0; i < node->ptr2TreeOrData.ptr2Tree.size(); i++) {
+            destroyTree(node->ptr2TreeOrData.ptr2Tree[i]);
+        }
+    }
+    
+    delete node;
 }
 
 int BPTree::getMaxIntChildLimit() {
