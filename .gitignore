@@ -98,3 +98,20 @@ conanbuildinfo.*
 
 # vcpkg
 vcpkg_installed/
+
+# GitHub Actions
+.github/workflows/*.log
+
+# CI/CD artifacts
+*.tar.gz
+*.zip
+release/
+dist/
+
+# Security scanning
+.sarif
+*.sarif
+
+# Test artifacts
+input.txt
+latest_changes.md

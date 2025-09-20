@@ -1,0 +1,191 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        compiler: [gcc, clang]
+        exclude:
+          # Windows doesn't have gcc/clang in the same way
+          - os: windows-latest
+            compiler: gcc
+          - os: windows-latest
+            compiler: clang
+        include:
+          # Add MSVC for Windows
+          - os: windows-latest
+            compiler: msvc
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup C++ Environment (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        if [ "${{ matrix.compiler }}" = "gcc" ]; then
+          sudo apt-get install -y gcc-11 g++-11
+          echo "CC=gcc-11" >> $GITHUB_ENV
+          echo "CXX=g++-11" >> $GITHUB_ENV
+        elif [ "${{ matrix.compiler }}" = "clang" ]; then
+          sudo apt-get install -y clang-14
+          echo "CC=clang-14" >> $GITHUB_ENV
+          echo "CXX=clang++-14" >> $GITHUB_ENV
+        fi
+
+    - name: Setup C++ Environment (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        if [ "${{ matrix.compiler }}" = "gcc" ]; then
+          brew install gcc@11
+          echo "CC=gcc-11" >> $GITHUB_ENV
+          echo "CXX=g++-11" >> $GITHUB_ENV
+        elif [ "${{ matrix.compiler }}" = "clang" ]; then
+          echo "CC=clang" >> $GITHUB_ENV
+          echo "CXX=clang++" >> $GITHUB_ENV
+        fi
+
+    - name: Setup MSVC (Windows)
+      if: runner.os == 'Windows'
+      uses: microsoft/setup-msbuild@v1.3
+
+    - name: Create DBFiles directory
+      run: mkdir -p DBFiles
+
+    - name: Build with Make (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        make clean
+        make
+
+    - name: Build with CMake (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+        cmake --build . --config Release
+
+    - name: Run Tests (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        chmod +x tests/test_suite.sh
+        ./tests/test_suite.sh
+
+    - name: Run Basic Test (Windows)
+      if: runner.os == 'Windows'
+      shell: cmd
+      run: |
+        cd build
+        echo 4 > input.txt
+        echo 3 >> input.txt
+        echo 1 >> input.txt
+        echo 101 >> input.txt
+        echo Alice 20 85 >> input.txt
+        echo 2 >> input.txt
+        echo 101 >> input.txt
+        echo 5 >> input.txt
+        Release\bptree_demo.exe < input.txt
+
+    - name: Upload Test Results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.os }}-${{ matrix.compiler }}
+        path: |
+          DBFiles/
+          *.log
+        retention-days: 7
+
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format-14 cppcheck
+
+    - name: Check code formatting
+      run: |
+        find src include examples -name "*.cpp" -o -name "*.hpp" | xargs clang-format-14 --dry-run --Werror
+
+    - name: Run static analysis
+      run: |
+        cppcheck --enable=all --error-exitcode=1 --suppress=missingIncludeSystem src/ include/
+
+    - name: Check for TODO/FIXME
+      run: |
+        if grep -r "TODO\|FIXME" src/ include/ examples/; then
+          echo "Found TODO/FIXME comments. Please resolve them."
+          exit 1
+        fi
+
+  documentation:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check README links
+      run: |
+        # Check if all referenced images exist
+        if grep -o '!\[.*\](img/[^)]*' README.md | sed 's/.*(//' | while read img; do
+          if [ ! -f "$img" ]; then
+            echo "Missing image: $img"
+            exit 1
+          fi
+        done
+
+    - name: Validate project structure
+      run: |
+        # Check essential files exist
+        for file in README.md LICENSE CONTRIBUTING.md CHANGELOG.md; do
+          if [ ! -f "$file" ]; then
+            echo "Missing essential file: $file"
+            exit 1
+          fi
+        done
+        
+        # Check directory structure
+        for dir in src include tests examples; do
+          if [ ! -d "$dir" ]; then
+            echo "Missing essential directory: $dir"
+            exit 1
+          fi
+        done
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run security scan
+      uses: github/super-linter@v4
+      env:
+        DEFAULT_BRANCH: master
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VALIDATE_CPP: true
+        VALIDATE_MARKDOWN: true
+        VALIDATE_YAML: true

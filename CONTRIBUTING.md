@@ -21,8 +21,9 @@ Thank you for your interest in contributing to this B+ Tree implementation! This
 2. **Follow the coding standards** (see below)
 3. **Write tests** for new functionality
 4. **Update documentation** as needed
-5. **Ensure all tests pass** before submitting
-6. **Write clear commit messages** following conventional commits
+5. **Ensure all tests pass** before submitting (`make test`)
+6. **Use our [PR template](.github/PULL_REQUEST_TEMPLATE.md)** when submitting
+7. **Write clear commit messages** following conventional commits
 
 ## 🏗️ Development Setup
 
@@ -36,7 +37,7 @@ Thank you for your interest in contributing to this B+ Tree implementation! This
 
 ```bash
 # Fork and clone the repository
-git clone https://github.com/your-username/bplus-tree.git
+git clone <your-forked-repo-url>
 cd bplus-tree
 
 # Create development build
@@ -162,10 +163,10 @@ TEST_F(InsertionTest, BasicInsertion) {
 ### Before Submitting
 
 1. **Rebase your branch** on the latest main
-2. **Run all tests** and ensure they pass
-3. **Format your code** using clang-format
+2. **Run all tests** and ensure they pass (`make test`)
+3. **Format your code** using clang-format (if available)
 4. **Update documentation** if needed
-5. **Write descriptive commit messages**
+5. **Fill out our [PR template](.github/PULL_REQUEST_TEMPLATE.md)**
 
 ### Commit Message Format
 
@@ -173,10 +174,6 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
 type(scope): description
-
-[optional body]
-
-[optional footer]
 ```
 
 Examples:
@@ -186,14 +183,6 @@ fix(deletion): resolve underflow in leaf nodes
 docs(readme): update build instructions
 test(search): add edge case tests for empty tree
 ```
-
-### Review Process
-
-1. **Automated checks** must pass (CI/CD)
-2. **Code review** by maintainers
-3. **Address feedback** promptly
-4. **Squash commits** if requested
-5. **Merge** after approval
 
 ## 🎯 Areas for Contribution
 

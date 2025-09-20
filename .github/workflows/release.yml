@@ -1,0 +1,162 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Generate changelog
+      id: changelog
+      run: |
+        if [ -f CHANGELOG.md ]; then
+          # Extract latest version changes
+          awk '/^## \[/{if(p) exit; p=1} p' CHANGELOG.md > latest_changes.md
+          echo "changelog_content<<EOF" >> $GITHUB_OUTPUT
+          cat latest_changes.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        else
+          echo "changelog_content=No changelog available" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name || github.event.inputs.version }}
+        release_name: B+ Tree ${{ github.ref_name || github.event.inputs.version }}
+        body: |
+          ## Changes in this Release
+          
+          ${{ steps.changelog.outputs.changelog_content }}
+          
+          ## Installation
+          
+          ### Using Source Code
+          ```bash
+          git clone https://github.com/${{ github.repository }}.git
+          cd bplus-tree
+          make
+          ```
+          
+          ### Quick Test
+          ```bash
+          ./bptree_demo
+          ```
+          
+          ## What's Included
+          - Complete B+ Tree implementation
+          - Comprehensive test suite
+          - Usage examples
+          - Professional documentation
+          
+          ## Supported Platforms
+          - Linux (GCC 7+, Clang 5+)
+          - macOS (Clang, GCC)
+          - Windows (MSVC 2017+)
+        draft: false
+        prerelease: false
+
+  build-artifacts:
+    name: Build Release Artifacts
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: linux-x64
+            archive_cmd: tar -czf
+            archive_ext: tar.gz
+          - os: macos-latest
+            name: macos-x64
+            archive_cmd: tar -czf
+            archive_ext: tar.gz
+          - os: windows-latest
+            name: windows-x64
+            archive_cmd: 7z a
+            archive_ext: zip
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Build Environment (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        mkdir -p DBFiles
+        make clean
+        make
+
+    - name: Setup Build Environment (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+        cmake --build . --config Release
+
+    - name: Prepare Release Package (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        mkdir -p bplus-tree-${{ matrix.name }}
+        cp bptree_demo basic_usage bplus-tree-${{ matrix.name }}/
+        cp README.md LICENSE CHANGELOG.md CONTRIBUTING.md bplus-tree-${{ matrix.name }}/
+        cp -r examples/ img/ bplus-tree-${{ matrix.name }}/
+        mkdir -p bplus-tree-${{ matrix.name }}/DBFiles
+        echo "B+ Tree Release Package" > bplus-tree-${{ matrix.name }}/DBFiles/.gitkeep
+
+    - name: Prepare Release Package (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        mkdir bplus-tree-${{ matrix.name }}
+        copy build\Release\bptree_demo.exe bplus-tree-${{ matrix.name }}\
+        copy build\Release\basic_usage.exe bplus-tree-${{ matrix.name }}\
+        copy README.md bplus-tree-${{ matrix.name }}\
+        copy LICENSE bplus-tree-${{ matrix.name }}\
+        copy CHANGELOG.md bplus-tree-${{ matrix.name }}\
+        copy CONTRIBUTING.md bplus-tree-${{ matrix.name }}\
+        xcopy examples bplus-tree-${{ matrix.name }}\examples\ /E /I
+        xcopy img bplus-tree-${{ matrix.name }}\img\ /E /I
+        mkdir bplus-tree-${{ matrix.name }}\DBFiles
+
+    - name: Create Archive (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        ${{ matrix.archive_cmd }} bplus-tree-${{ matrix.name }}.${{ matrix.archive_ext }} bplus-tree-${{ matrix.name }}/
+
+    - name: Create Archive (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        ${{ matrix.archive_cmd }} bplus-tree-${{ matrix.name }}.${{ matrix.archive_ext }} bplus-tree-${{ matrix.name }}\
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./bplus-tree-${{ matrix.name }}.${{ matrix.archive_ext }}
+        asset_name: bplus-tree-${{ matrix.name }}.${{ matrix.archive_ext }}
+        asset_content_type: application/octet-stream

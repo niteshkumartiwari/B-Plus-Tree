@@ -1,6 +1,5 @@
 # B+ Tree Implementation
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/user/bplus-tree)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![C++](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
 [![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](CHANGELOG.md)
@@ -19,19 +18,9 @@ A high-performance, modern C++17 implementation of B+ Tree data structure with c
 
 ## 📋 Table of Contents
 
-- [Demo](#demo)
-- [Quick Start](#quick-start)
-- [Building](#building)
-- [Usage](#usage)
-- [B+ Tree Theory](#b-tree-theory)
-- [API Reference](#api-reference)
-- [Testing](#testing)
-- [Contributing](#contributing)
-- [License](#license)
+- [Quick Start](#quick-start) • [Building](#building) • [Usage](#usage) • [API Reference](#api-reference) • [Testing](#testing) • [Contributing](#contributing)
 
-## 🎬 Demo
 
-![Demo](img/demo.gif)
 
 ## 🏃 Quick Start
 
@@ -45,7 +34,7 @@ int main() {
     
     // Insert student data
     FILE* file = fopen("DBFiles/101.txt", "w");
-    fprintf(file, "Alice 20 85\n");
+    fprintf(file, "Wilson Sarah 22 89\n");
     tree.insert(101, file);
     fclose(file);
     
@@ -66,12 +55,14 @@ int main() {
 - **C++17 compatible compiler** (GCC 7+, Clang 5+, MSVC 2017+)
 - **Make** or **CMake 3.15+** (optional)
 
+This project uses GitHub Actions for automated testing across Linux, macOS, and Windows with multiple compilers.
+
 ### Build Instructions
 
 #### Option 1: Using Makefile (Recommended)
 ```bash
 # Clone the repository
-git clone https://github.com/user/bplus-tree.git
+git clone <your-repo-url>
 cd bplus-tree
 
 # Build the project
@@ -132,7 +123,7 @@ bptree::BPTree tree(4, 3);  // internal_limit=4, leaf_limit=3
 
 // Insert student record
 FILE* studentFile = fopen("DBFiles/12345.txt", "w");
-fprintf(studentFile, "John Doe 20 85\n");
+fprintf(studentFile, "Smith Michael 21 92\n");
 tree.insert(12345, studentFile);
 fclose(studentFile);
 
@@ -159,7 +150,7 @@ std::vector<int> rollNumbers = {101, 102, 103, 104, 105};
 for (int rollNo : rollNumbers) {
     std::string filename = "DBFiles/" + std::to_string(rollNo) + ".txt";
     FILE* file = fopen(filename.c_str(), "w");
-    fprintf(file, "Student_%d 20 85\n", rollNo);
+    fprintf(file, "Student_%d 21 88\n", rollNo);
     studentsTree.insert(rollNo, file);
     fclose(file);
 }
@@ -393,59 +384,18 @@ make test
 ./tests/test_suite.sh --clean-build
 ```
 
-### Test Coverage
-
-Our test suite includes **8 comprehensive scenarios**:
-
-| Test Case | Description | Validates |
-|-----------|-------------|-----------|
-| **Basic Operations** | Insert, search, display | Core functionality |
-| **Tree Splitting** | Node overflow handling | Tree growth |
-| **Delete Operations** | Simple key removal | Basic deletion |
-| **Complex Deletion** | Underflow and merging | Advanced deletion |
-| **Empty Tree** | Edge case operations | Error handling |
-| **Single Node** | Minimal tree operations | Boundary conditions |
-| **Large Tree** | Multi-level operations | Scalability |
-| **Sequential Display** | Leaf traversal | Sequential access |
-
-### Test Results
-```
-Total Tests: 8
-Passed Tests: 8
-ALL TESTS PASSED! 🎉
-
-File Operations:
-- Total data files created: 22+
-- Files with content: 22+
-- File operations verified successfully
-```
+Our test suite includes **8 comprehensive scenarios** covering basic operations, tree splitting, deletion, edge cases, and scalability. See [Testing Workflows Guide](docs/TESTING_WORKFLOWS.md) for detailed testing instructions.
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+We welcome contributions! Here's how to get started:
 
-### Quick Contribution Steps
+1. **Fork** the repository and create a feature branch
+2. **Follow** our [coding standards](CONTRIBUTING.md#coding-standards) and [development setup](CONTRIBUTING.md#development-setup)
+3. **Write tests** for new functionality and ensure all tests pass (`make test`)
+4. **Submit** a pull request with a clear description
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
-
-### Development Setup
-
-```bash
-# Clone your fork
-git clone https://github.com/your-username/bplus-tree.git
-cd bplus-tree
-
-# Build and test
-make
-make test
-
-# Format code (if clang-format available)
-find src include -name "*.cpp" -o -name "*.hpp" | xargs clang-format -i
-```
+For detailed guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## 📄 License
 
