@@ -61,14 +61,36 @@ jobs:
       if: runner.os == 'Windows'
       uses: microsoft/setup-msbuild@v1.3
 
-    - name: Create DBFiles directory
+    - name: Create DBFiles directory (Unix)
+      if: runner.os != 'Windows'
       run: mkdir -p DBFiles
+
+    - name: Create DBFiles directory (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        if (!(Test-Path "DBFiles")) { New-Item -ItemType Directory -Path "DBFiles" }
+      shell: powershell
 
     - name: Build with Make (Unix)
       if: runner.os != 'Windows'
       run: |
-        make clean
-        make
+        echo "Current directory: $(pwd)"
+        echo "Files in directory:"
+        ls -la
+        echo "Checking for Makefile..."
+        if [ -f "Makefile" ]; then
+          echo "✅ Makefile found"
+          echo "Available make targets:"
+          make -n clean 2>/dev/null || echo "Clean target not available, skipping..."
+          echo "Building project..."
+          make clean || echo "Clean failed, continuing..."
+          make all
+        else
+          echo "❌ Makefile not found, trying direct compilation..."
+          mkdir -p DBFiles
+          g++ -std=c++17 -Wall -Wextra -g -Iinclude -o bptree_demo src/*.cpp
+          g++ -std=c++17 -Wall -Wextra -g -Iinclude -o basic_usage src/display.cpp src/insertion.cpp src/removal.cpp src/search.cpp src/utils.cpp examples/basic_usage.cpp
+        fi
 
     - name: Build with CMake (Windows)
       if: runner.os == 'Windows'
@@ -181,26 +203,40 @@ jobs:
 
     - name: Validate project structure
       run: |
+        echo "Current directory: $(pwd)"
+        echo "All files and directories:"
+        ls -la
+        
         echo "Checking essential files..."
+        missing_files=0
         for file in README.md LICENSE CONTRIBUTING.md CHANGELOG.md; do
           if [ -f "$file" ]; then
             echo "✅ Found file: $file"
           else
             echo "❌ Missing essential file: $file"
-            exit 1
+            missing_files=$((missing_files + 1))
           fi
         done
         
         echo "Checking directory structure..."
+        missing_dirs=0
         for dir in src include tests examples; do
           if [ -d "$dir" ]; then
             echo "✅ Found directory: $dir"
+            echo "  Contents: $(ls -la $dir | wc -l) items"
           else
             echo "❌ Missing essential directory: $dir"
-            exit 1
+            missing_dirs=$((missing_dirs + 1))
           fi
         done
-        echo "✅ Project structure validation passed"
+        
+        if [ $missing_files -gt 0 ] || [ $missing_dirs -gt 0 ]; then
+          echo "❌ Project structure validation failed"
+          echo "Missing files: $missing_files, Missing directories: $missing_dirs"
+          exit 1
+        else
+          echo "✅ Project structure validation passed"
+        fi
 
   security:
     name: Security Scan
