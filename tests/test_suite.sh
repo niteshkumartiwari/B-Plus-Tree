@@ -408,7 +408,7 @@ Successfully Deleted file"
     
     # Test 11: Sequential Display Test
     total_tests=$((total_tests + 1))
-    local test9_input="4
+    local test11_input="4
 3
 1
 701
@@ -422,12 +422,12 @@ Z 22 82
 3
 2
 5"
-    local test8_expected="I AM ROOT
+    local test11_expected="I AM ROOT
 Inserted successfully
 Inserted successfully
 701 702 703"
     
-    if run_test_case "Sequential Display" "$test8_input" "$test8_expected"; then
+    if run_test_case "Sequential Display" "$test11_input" "$test11_expected"; then
         passed_tests=$((passed_tests + 1))
     fi
     

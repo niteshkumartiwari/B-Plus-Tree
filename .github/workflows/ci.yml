@@ -80,11 +80,13 @@ jobs:
         echo "Checking for Makefile..."
         if [ -f "Makefile" ]; then
           echo "✅ Makefile found"
-          echo "Available make targets:"
-          make -n clean 2>/dev/null || echo "Clean target not available, skipping..."
-          echo "Building project..."
+          echo "Force clean build to avoid cache issues..."
+          rm -f src/*.o examples/*.o bptree_demo basic_usage 2>/dev/null || true
+          echo "Building project with verbose output..."
           make clean || echo "Clean failed, continuing..."
           make all
+          echo "Verifying executables were built:"
+          ls -la bptree_demo basic_usage || echo "Some executables missing"
         else
           echo "❌ Makefile not found, trying direct compilation..."
           mkdir -p DBFiles

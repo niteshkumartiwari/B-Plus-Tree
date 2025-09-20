@@ -151,6 +151,10 @@ void BPTree::removeKey(int x) {
 	// Merge and Delete Node
 	if (leftSibling >= 0 && leftSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {// If left sibling exists
 		Node* leftNode = parent->ptr2TreeOrData.ptr2Tree[leftSibling];
+		if (leftNode == NULL) {
+			cout << "ERROR: Left sibling node is NULL!" << endl;
+			return;
+		}
 		//Transfer Key and dataPtr to leftSibling and connect ptr2next
 		for (int i = 0; i < cursor->keys.size(); i++) {
 			leftNode->keys.push_back(cursor->keys[i]);
@@ -164,6 +168,10 @@ void BPTree::removeKey(int x) {
 	}
 	else if (rightSibling >= 0 && rightSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {
 		Node* rightNode = parent->ptr2TreeOrData.ptr2Tree[rightSibling];
+		if (rightNode == NULL) {
+			cout << "ERROR: Right sibling node is NULL!" << endl;
+			return;
+		}
 		//Transfer Key and dataPtr to rightSibling and connect ptr2next
 		for (int i = 0; i < rightNode->keys.size(); i++) {
 			cursor->keys.push_back(rightNode->keys[i]);
@@ -239,8 +247,9 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 	}
 
 	Node** p1 = findParent(root, cursor);
-	if (p1 == NULL) {
+	if (p1 == NULL || *p1 == NULL) {
 		cout << "ERROR: findParent returned NULL for cursor!" << endl;
+		cout << "This indicates a corrupted tree structure or invalid cursor." << endl;
 		return;
 	}
 	Node* parent = *p1;
@@ -320,9 +329,11 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 			cursor->ptr2TreeOrData.ptr2Tree[i] = NULL;
 		}
 
-		// Clean up the merged node - call removeInternal BEFORE delete
-		removeInternal(parent->keys[leftSibling], parent, cursor);
+		// Clean up the merged node - call removeInternal BEFORE delete to avoid use-after-free
+		int keyToRemove = parent->keys[leftSibling];
+		removeInternal(keyToRemove, parent, cursor);
 		delete cursor;
+		cursor = nullptr;  // Prevent accidental reuse
 		cout << "Merged with left sibling"<<endl;
 	}
 	else if (rightSibling >= 0 && rightSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {
@@ -340,9 +351,11 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 			rightNode->ptr2TreeOrData.ptr2Tree[i] = NULL;
 		}
 
-		// Clean up the merged node - call removeInternal BEFORE delete
-		removeInternal(parent->keys[rightSibling - 1], parent, rightNode);
+		// Clean up the merged node - call removeInternal BEFORE delete to avoid use-after-free
+		int keyToRemove = parent->keys[rightSibling - 1];
+		removeInternal(keyToRemove, parent, rightNode);
 		delete rightNode;
+		rightNode = nullptr;  // Prevent accidental reuse
 		cout << "Merged with right sibling\n";
 	}
 }
