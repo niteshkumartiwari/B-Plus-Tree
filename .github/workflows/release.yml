@@ -15,8 +15,6 @@ jobs:
   create-release:
     name: Create Release
     runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
       
     steps:
     - name: Checkout code
@@ -39,12 +37,12 @@ jobs:
 
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
+      uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref_name || github.event.inputs.version }}
-        release_name: B+ Tree ${{ github.ref_name || github.event.inputs.version }}
+        name: B+ Tree ${{ github.ref_name || github.event.inputs.version }}
         body: |
           ## Changes in this Release
           
@@ -152,11 +150,9 @@ jobs:
         ${{ matrix.archive_cmd }} bplus-tree-${{ matrix.name }}.${{ matrix.archive_ext }} bplus-tree-${{ matrix.name }}\
 
     - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./bplus-tree-${{ matrix.name }}.${{ matrix.archive_ext }}
-        asset_name: bplus-tree-${{ matrix.name }}.${{ matrix.archive_ext }}
-        asset_content_type: application/octet-stream
+        tag_name: ${{ github.ref_name || github.event.inputs.version }}
+        files: ./bplus-tree-${{ matrix.name }}.${{ matrix.archive_ext }}
