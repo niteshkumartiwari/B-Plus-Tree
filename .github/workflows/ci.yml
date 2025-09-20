@@ -108,7 +108,61 @@ jobs:
         echo "Running test suite..."
         chmod +x tests/test_suite.sh
         # Skip build in test suite since we already built
-        SKIP_BUILD=1 ./tests/test_suite.sh
+        # Run comprehensive test suite with detailed logging
+        echo "========================================="
+        echo "RUNNING COMPREHENSIVE TEST SUITE"
+        echo "========================================="
+        
+        chmod +x tests/test_suite.sh
+        
+        # Run tests and capture output, but still show it in real-time
+        if SKIP_BUILD=1 ./tests/test_suite.sh; then
+          echo ""
+          echo "✅ ALL TESTS PASSED SUCCESSFULLY"
+        else
+          test_exit_code=$?
+          echo ""
+          echo "========================================="
+          echo "❌ TESTS FAILED - DETAILED ANALYSIS"
+          echo "========================================="
+          echo "Exit code: $test_exit_code"
+          echo ""
+          
+          # Re-run with more verbose output to capture failure details
+          echo "🔍 Re-running failed tests with detailed output..."
+          echo ""
+          
+          # Run again to get detailed failure information
+          SKIP_BUILD=1 ./tests/test_suite.sh 2>&1 | tee test_failure_log.txt || true
+          
+          echo ""
+          echo "📋 FAILURE SUMMARY:"
+          echo "==================="
+          
+          # Parse and display specific failure information
+          if [ -f test_failure_log.txt ]; then
+            echo "📊 Test Statistics:"
+            grep -E "(Total Tests|Passed Tests|Failed Tests):" test_failure_log.txt || echo "Could not parse test statistics"
+            echo ""
+            
+            echo "❌ Failed Test Details:"
+            grep -E "\[ERROR\].*failed" test_failure_log.txt || echo "Could not parse failed test names"
+            echo ""
+            
+            echo "🐛 Error Patterns Found:"
+            grep -E "(exit code|segmentation fault|core dumped|ERROR)" test_failure_log.txt | head -10 || echo "No specific error patterns found"
+            echo ""
+            
+            echo "💾 Full failure log saved to test_failure_log.txt"
+          fi
+          
+          echo ""
+          echo "🚨 CI FAILING DUE TO TEST FAILURES"
+          echo "Please review the test output above and fix the failing tests"
+          
+          # Exit with the original test failure code
+          exit $test_exit_code
+        fi
 
     - name: Run Basic Test (Windows)
       if: runner.os == 'Windows'
