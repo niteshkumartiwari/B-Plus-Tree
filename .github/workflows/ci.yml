@@ -226,6 +226,8 @@ jobs:
             echo "  Contents: $(ls -la $dir | wc -l) items"
           else
             echo "❌ Missing essential directory: $dir"
+            echo "  Checking if directory exists with different case..."
+            ls -la | grep -i "$dir" || echo "  No similar directory found"
             missing_dirs=$((missing_dirs + 1))
           fi
         done

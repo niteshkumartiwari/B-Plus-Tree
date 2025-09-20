@@ -33,7 +33,7 @@ out/
 *.out
 *.app
 bptree_demo
-bptree
+basic_usage
 
 # IDE files
 .vscode/
