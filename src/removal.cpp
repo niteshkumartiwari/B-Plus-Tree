@@ -1,6 +1,9 @@
 #include <iostream>
 #include <cstring>
-#include "B+ Tree.h"
+#include "bptree/bptree.hpp"
+
+using namespace std;
+using namespace bptree;
 
 void BPTree::removeKey(int x) {
 	Node* root = getRoot();

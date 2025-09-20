@@ -48,10 +48,10 @@ setup_test_environment() {
     # Create fresh DBFiles directory
     mkdir -p "$ORIGINAL_DBFILES"
     
-    # Clean and build the project
-    print_status "Building B+ Tree project..."
-    make clean > /dev/null 2>&1
-    if make > /dev/null 2>&1; then
+    # Clean and build the project using Makefile
+    print_status "Building B+ Tree project with Makefile..."
+    
+    if make clean > /dev/null 2>&1 && make > /dev/null 2>&1; then
         print_success "Build completed successfully"
     else
         print_error "Build failed"
@@ -59,8 +59,8 @@ setup_test_environment() {
     fi
     
     # Check if executable exists
-    if [ ! -f "./bptree" ]; then
-        print_error "Executable 'bptree' not found"
+    if [ ! -f "./bptree_demo" ]; then
+        print_error "Executable 'bptree_demo' not found"
         exit 1
     fi
     
@@ -77,7 +77,7 @@ run_test_case() {
     
     # Run the test and capture output
     local output
-    output=$(echo "$test_input" | ./bptree 2>&1)
+    output=$(echo "$test_input" | ./bptree_demo 2>&1)
     local exit_code=$?
     
     # Check if the program ran successfully

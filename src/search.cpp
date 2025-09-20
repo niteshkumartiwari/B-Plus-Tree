@@ -1,7 +1,10 @@
 #include <iostream>
-#include<algorithm>
-#include<string>
-#include "B+ Tree.h"
+#include <algorithm>
+#include <string>
+#include "bptree/bptree.hpp"
+
+using namespace std;
+using namespace bptree;
 
 
 void BPTree::search(int key) {

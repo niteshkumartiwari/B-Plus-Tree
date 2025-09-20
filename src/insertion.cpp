@@ -2,9 +2,10 @@
 #include <fstream>
 #include <algorithm>
 #include <vector>
-#include "B+ Tree.h"
+#include "bptree/bptree.hpp"
 
 using namespace std;
+using namespace bptree;
 
 void BPTree::insert(int key, FILE* filePtr) {  //in Leaf Node
     /*

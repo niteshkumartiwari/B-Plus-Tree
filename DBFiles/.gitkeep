@@ -1,0 +1,2 @@
+# This file ensures the DBFiles directory is tracked by git
+# but allows the directory to remain empty

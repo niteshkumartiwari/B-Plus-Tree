@@ -1,7 +1,9 @@
 #include <iostream>
 #include <queue>
-#ifndef NODE_H
-#include "B+ Tree.h"
+#include "bptree/bptree.hpp"
+
+using namespace std;
+using namespace bptree;
 
 
 void BPTree::display(Node* cursor) {
@@ -64,4 +66,3 @@ void BPTree::seqDisplay(Node* cursor) {
     cout << endl;
 }
 
-#endif 
