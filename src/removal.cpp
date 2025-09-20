@@ -14,6 +14,12 @@ void BPTree::removeKey(int x) {
 		return;
 	}
 
+	// Add safety check for root node
+	if (root->keys.empty()) {
+		cout << "ERROR: Root node has no keys!" << endl;
+		return;
+	}
+
 	Node* cursor = root;
 	Node* parent;
 	int leftSibling, rightSibling;
@@ -21,19 +27,41 @@ void BPTree::removeKey(int x) {
 	// Going to the Leaf Node, Which may contain the *key*
 	// TO-DO : Use Binary Search to find the val
 	while (cursor->isLeaf != true) {
+		// Safety check for internal node
+		if (cursor->keys.empty() || cursor->ptr2TreeOrData.ptr2Tree.empty()) {
+			cout << "ERROR: Corrupted internal node during traversal!" << endl;
+			return;
+		}
+
 		for (int i = 0; i < cursor->keys.size(); i++) {
 			parent = cursor;
 			leftSibling = i - 1;//left side of the parent node
 			rightSibling = i + 1;// right side of the parent node
 
 			if (x < cursor->keys[i]) {
+				if (i >= cursor->ptr2TreeOrData.ptr2Tree.size()) {
+					cout << "ERROR: Invalid child pointer index!" << endl;
+					return;
+				}
 				cursor = cursor->ptr2TreeOrData.ptr2Tree[i];
+				if (cursor == NULL) {
+					cout << "ERROR: NULL child pointer encountered!" << endl;
+					return;
+				}
 				break;
 			}
 			if (i == cursor->keys.size() - 1) {
 				leftSibling = i;
 				rightSibling = i + 2;// CHECK here , might need to make it negative
+				if (i + 1 >= cursor->ptr2TreeOrData.ptr2Tree.size()) {
+					cout << "ERROR: Invalid rightmost child pointer index!" << endl;
+					return;
+				}
 				cursor = cursor->ptr2TreeOrData.ptr2Tree[i+1];
+				if (cursor == NULL) {
+					cout << "ERROR: NULL rightmost child pointer encountered!" << endl;
+					return;
+				}
 				break;
 			}
 		}
@@ -189,6 +217,16 @@ void BPTree::removeKey(int x) {
 void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 	Node* root = getRoot();
 
+	// Safety checks to prevent infinite recursion and crashes
+	if (cursor == NULL) {
+		cout << "ERROR: removeInternal called with NULL cursor!" << endl;
+		return;
+	}
+	if (child == NULL) {
+		cout << "ERROR: removeInternal called with NULL child!" << endl;
+		return;
+	}
+
 	// Check if key from root is to deleted
 	if (cursor == root) {
 		if (cursor->keys.size() == 1) {
@@ -250,9 +288,16 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 	if (p1 == NULL || *p1 == NULL) {
 		cout << "ERROR: findParent returned NULL for cursor!" << endl;
 		cout << "This indicates a corrupted tree structure or invalid cursor." << endl;
+		cout << "Attempting to continue without underflow handling..." << endl;
 		return;
 	}
 	Node* parent = *p1;
+	
+	// Additional safety check
+	if (parent == NULL) {
+		cout << "ERROR: Parent node is NULL after findParent!" << endl;
+		return;
+	}
 
 	int leftSibling, rightSibling;
 

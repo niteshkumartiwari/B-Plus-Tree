@@ -107,19 +107,42 @@ Node** BPTree::findParent(Node* cursor, Node* child) {
 		also ignores second last level because we will never find parent of a leaf node during insertion using this function
 	*/
 
-    if (cursor->isLeaf || cursor->ptr2TreeOrData.ptr2Tree[0]->isLeaf)
+    // Safety checks
+    if (cursor == NULL || child == NULL) {
         return NULL;
+    }
 
+    if (cursor->isLeaf) {
+        return NULL;
+    }
+
+    // Check if cursor's children are empty or if first child is leaf
+    if (cursor->ptr2TreeOrData.ptr2Tree.empty()) {
+        return NULL;
+    }
+
+    if (cursor->ptr2TreeOrData.ptr2Tree[0] == NULL || cursor->ptr2TreeOrData.ptr2Tree[0]->isLeaf) {
+        return NULL;
+    }
+
+    // Check direct children first
     for (int i = 0; i < cursor->ptr2TreeOrData.ptr2Tree.size(); i++) {
         if (cursor->ptr2TreeOrData.ptr2Tree[i] == child) {
             parent = cursor;
-        } else {
-            //Commenting To Remove vector out of bound Error: 
-            //new (&cursor->ptr2TreeOrData.ptr2Tree) std::vector<Node*>;
-            Node* tmpCursor = cursor->ptr2TreeOrData.ptr2Tree[i];
-            findParent(tmpCursor, child);
+            return &parent;
         }
     }
 
-    return &parent;
+    // Recursively search in children
+    for (int i = 0; i < cursor->ptr2TreeOrData.ptr2Tree.size(); i++) {
+        Node* tmpCursor = cursor->ptr2TreeOrData.ptr2Tree[i];
+        if (tmpCursor != NULL && !tmpCursor->isLeaf) {
+            Node** result = findParent(tmpCursor, child);
+            if (result != NULL) {
+                return result;
+            }
+        }
+    }
+
+    return NULL;
 }
