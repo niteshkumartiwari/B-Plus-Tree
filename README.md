@@ -20,6 +20,12 @@ A high-performance, modern C++17 implementation of B+ Tree data structure with c
 - ✅ **Cross-Platform**: Works on Linux, macOS, and Windows
 - ✅ **Professional Structure**: Industry-standard project organization
 
+## 🎬 Demo
+
+![B+ Tree Demo](img/demo.gif)
+
+*Interactive demonstration of B+ Tree operations including insertion, search, deletion, and tree visualization*
+
 ## 📋 Table of Contents
 
 - [Quick Start](#quick-start) • [Building](#building) • [Usage](#usage) • [API Reference](#api-reference) • [Testing](#testing) • [Contributing](#contributing)
