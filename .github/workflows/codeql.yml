@@ -39,9 +39,25 @@ jobs:
 
     - name: Build Project
       run: |
+        echo "Setting up build environment..."
         mkdir -p DBFiles
-        make clean
-        make
+        
+        echo "Checking for Makefile..."
+        if [ -f "Makefile" ]; then
+          echo "✅ Makefile found"
+          echo "Force clean build..."
+          rm -f src/*.o examples/*.o bptree_demo basic_usage 2>/dev/null || true
+          echo "Building project..."
+          make clean || echo "Clean failed, continuing..."
+          make all
+        else
+          echo "❌ Makefile not found, using direct compilation..."
+          g++ -std=c++17 -Wall -Wextra -g -Iinclude -o bptree_demo src/*.cpp
+          g++ -std=c++17 -Wall -Wextra -g -Iinclude -o basic_usage src/display.cpp src/insertion.cpp src/removal.cpp src/search.cpp src/utils.cpp examples/basic_usage.cpp
+        fi
+        
+        echo "Verifying build results..."
+        ls -la bptree_demo basic_usage || echo "Some executables missing"
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
