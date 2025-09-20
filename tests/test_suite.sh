@@ -323,9 +323,92 @@ Key FOUND"
         passed_tests=$((passed_tests + 1))
     fi
     
-    # Test 8: Sequential Display Test
+    # Test 8: Use-After-Free Bug Test (Segmentation Fault Regression Test)
+    # This test specifically triggers the use-after-free bug that was fixed
+    # It creates a scenario where node merging occurs and tests the fix
     total_tests=$((total_tests + 1))
-    local test8_input="4
+    local test8_input="3
+2
+1
+801
+TestA 20 80
+1
+802
+TestB 21 81
+1
+803
+TestC 22 82
+4
+802
+4
+801
+3
+1
+5"
+    local test8_expected="I AM ROOT
+Successfully Deleted file
+Successfully Deleted file"
+    
+    if run_test_case "Use-After-Free Regression Test" "$test8_input" "$test8_expected"; then
+        passed_tests=$((passed_tests + 1))
+    fi
+    
+    # Test 9: NULL Pointer Dereference Regression Test
+    # This test creates a scenario that could trigger findParent returning NULL
+    total_tests=$((total_tests + 1))
+    local test9_input="2
+2
+1
+901
+Root 30 90
+4
+901
+3
+1
+5"
+    local test9_expected="I AM ROOT
+Successfully Deleted file
+Tree is Empty Now"
+    
+    if run_test_case "NULL Pointer Regression Test" "$test9_input" "$test9_expected"; then
+        passed_tests=$((passed_tests + 1))
+    fi
+    
+    # Test 10: Array Bounds Regression Test
+    # This test creates a scenario with sibling operations that could cause out-of-bounds access
+    total_tests=$((total_tests + 1))
+    local test10_input="4
+3
+1
+1001
+BoundsA 25 85
+1
+1002
+BoundsB 26 86
+1
+1003
+BoundsC 27 87
+1
+1004
+BoundsD 28 88
+4
+1002
+4
+1003
+3
+1
+5"
+    local test10_expected="I AM ROOT
+Successfully Deleted file
+Successfully Deleted file"
+    
+    if run_test_case "Array Bounds Regression Test" "$test10_input" "$test10_expected"; then
+        passed_tests=$((passed_tests + 1))
+    fi
+    
+    # Test 11: Sequential Display Test
+    total_tests=$((total_tests + 1))
+    local test9_input="4
 3
 1
 701

@@ -59,7 +59,8 @@ void BPTree::removeKey(int x) {
 	// Delete the respective File and FILE*
 	string fileName = "DBFiles/" + to_string(x) + ".txt";
 	char filePtr[256];
-	strcpy(filePtr, fileName.c_str());
+	strncpy(filePtr, fileName.c_str(), sizeof(filePtr) - 1);
+	filePtr[sizeof(filePtr) - 1] = '\0';
 
 	// Close the file pointer if it's still open
 	if (cursor->ptr2TreeOrData.dataPtr[pos] != NULL) {
@@ -100,7 +101,7 @@ void BPTree::removeKey(int x) {
 	cout << "Starting Redistribution..." << endl;
 
 	//1. Try to borrow a key from leftSibling
-	if (leftSibling >= 0) {
+	if (leftSibling >= 0 && leftSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {
 		Node* leftNode = parent->ptr2TreeOrData.ptr2Tree[leftSibling];
 
 		//Check if LeftSibling has extra Key to transfer
@@ -124,7 +125,7 @@ void BPTree::removeKey(int x) {
 	}
 
 	//2. Try to borrow a key from rightSibling
-	if (rightSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {
+	if (rightSibling >= 0 && rightSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {
 		Node* rightNode = parent->ptr2TreeOrData.ptr2Tree[rightSibling];
 
 		//Check if RightSibling has extra Key to transfer
@@ -148,7 +149,7 @@ void BPTree::removeKey(int x) {
 	}
 
 	// Merge and Delete Node
-	if (leftSibling >= 0) {// If left sibling exists
+	if (leftSibling >= 0 && leftSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {// If left sibling exists
 		Node* leftNode = parent->ptr2TreeOrData.ptr2Tree[leftSibling];
 		//Transfer Key and dataPtr to leftSibling and connect ptr2next
 		for (int i = 0; i < cursor->keys.size(); i++) {
@@ -161,7 +162,7 @@ void BPTree::removeKey(int x) {
 		removeInternal(parent->keys[leftSibling], parent, cursor);//delete parent Node Key
 		delete cursor;
 	}
-	else if (rightSibling <= parent->keys.size()) {
+	else if (rightSibling >= 0 && rightSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {
 		Node* rightNode = parent->ptr2TreeOrData.ptr2Tree[rightSibling];
 		//Transfer Key and dataPtr to rightSibling and connect ptr2next
 		for (int i = 0; i < rightNode->keys.size(); i++) {
@@ -238,6 +239,10 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 	}
 
 	Node** p1 = findParent(root, cursor);
+	if (p1 == NULL) {
+		cout << "ERROR: findParent returned NULL for cursor!" << endl;
+		return;
+	}
 	Node* parent = *p1;
 
 	int leftSibling, rightSibling;
@@ -252,7 +257,7 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 	}
 
 	// If possible transfer to leftSibling
-	if (leftSibling >= 0) {
+	if (leftSibling >= 0 && leftSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {
 		Node* leftNode = parent->ptr2TreeOrData.ptr2Tree[leftSibling];
 
 		//Check if LeftSibling has extra Key to transfer
@@ -277,7 +282,7 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 	}
 
 	// If possible transfer to rightSibling
-	if (rightSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {
+	if (rightSibling >= 0 && rightSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {
 		Node* rightNode = parent->ptr2TreeOrData.ptr2Tree[rightSibling];
 
 		//Check if RightSibling has extra Key to transfer
@@ -300,7 +305,7 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 	}
 
 	//Start to Merge Now, if None of the above cases applied
-	if (leftSibling >= 0) {
+	if (leftSibling >= 0 && leftSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {
 		//leftNode + parent key + cursor
 		Node* leftNode = parent->ptr2TreeOrData.ptr2Tree[leftSibling];
 		leftNode->keys.push_back(parent->keys[leftSibling]);
@@ -315,13 +320,12 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 			cursor->ptr2TreeOrData.ptr2Tree[i] = NULL;
 		}
 
-		// Clean up the merged node
-		delete cursor;
-
+		// Clean up the merged node - call removeInternal BEFORE delete
 		removeInternal(parent->keys[leftSibling], parent, cursor);
+		delete cursor;
 		cout << "Merged with left sibling"<<endl;
 	}
-	else if (rightSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {
+	else if (rightSibling >= 0 && rightSibling < parent->ptr2TreeOrData.ptr2Tree.size()) {
 		//cursor + parentkey +rightNode
 		Node* rightNode = parent->ptr2TreeOrData.ptr2Tree[rightSibling];
 		cursor->keys.push_back(parent->keys[rightSibling - 1]);
@@ -336,10 +340,9 @@ void BPTree::removeInternal(int x, Node* cursor, Node* child) {
 			rightNode->ptr2TreeOrData.ptr2Tree[i] = NULL;
 		}
 
-		// Clean up the merged node
-		delete rightNode;
-
+		// Clean up the merged node - call removeInternal BEFORE delete
 		removeInternal(parent->keys[rightSibling - 1], parent, rightNode);
+		delete rightNode;
 		cout << "Merged with right sibling\n";
 	}
 }
