@@ -103,8 +103,12 @@ jobs:
     - name: Run Tests (Unix)
       if: runner.os != 'Windows'
       run: |
+        echo "Checking if executables exist..."
+        ls -la bptree_demo basic_usage 2>/dev/null || echo "Some executables missing"
+        echo "Running test suite..."
         chmod +x tests/test_suite.sh
-        ./tests/test_suite.sh
+        # Skip build in test suite since we already built
+        SKIP_BUILD=1 ./tests/test_suite.sh
 
     - name: Run Basic Test (Windows)
       if: runner.os == 'Windows'

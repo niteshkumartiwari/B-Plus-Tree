@@ -48,19 +48,24 @@ setup_test_environment() {
     # Create fresh DBFiles directory
     mkdir -p "$ORIGINAL_DBFILES"
     
-    # Clean and build the project using Makefile
-    print_status "Building B+ Tree project with Makefile..."
-    
-    if make clean > /dev/null 2>&1 && make > /dev/null 2>&1; then
-        print_success "Build completed successfully"
+    # Build the project using Makefile (unless SKIP_BUILD is set)
+    if [ "${SKIP_BUILD:-0}" = "1" ]; then
+        print_status "Skipping build (SKIP_BUILD=1)"
     else
-        print_error "Build failed"
-        exit 1
+        print_status "Building B+ Tree project with Makefile..."
+        
+        if make clean > /dev/null 2>&1 && make > /dev/null 2>&1; then
+            print_success "Build completed successfully"
+        else
+            print_error "Build failed"
+            exit 1
+        fi
     fi
     
     # Check if executable exists
     if [ ! -f "./bptree_demo" ]; then
         print_error "Executable 'bptree_demo' not found"
+        print_error "Available files: $(ls -la *.exe bptree* basic_usage* 2>/dev/null || echo 'none found')"
         exit 1
     fi
     
