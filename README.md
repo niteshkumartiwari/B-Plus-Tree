@@ -1,7 +1,7 @@
 # B+ Tree Implementation
 
 [![CI](https://github.com/niteshkumartiwari/B-Plus-Tree/workflows/CI/badge.svg)](https://github.com/niteshkumartiwari/B-Plus-Tree/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/niteshkumartiwari/B-Plus-Tree/workflows/CodeQL%20Security%20Analysis/badge.svg)](https://github.com/niteshkumartiwari/YOUR_REPO_NAME/actions/workflows/codeql.yml)
+[![CodeQL](https://github.com/niteshkumartiwari/B-Plus-Tree/workflows/CodeQL%20Security%20Analysis/badge.svg)](https://github.com/niteshkumartiwari/B-Plus-Tree/actions/workflows/codeql.yml)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![C++](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
 [![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](CHANGELOG.md)
